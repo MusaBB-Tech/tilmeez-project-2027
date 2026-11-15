@@ -431,8 +431,9 @@ class _DesktopHomePageState extends State<DesktopHomePage>
                           ],
                         ),
                         const SizedBox(height: 32),
+                        // ✅ UPDATED CAMPAIGN NAME
                         Text(
-                          'Tilmeez Project\n2027 for Shehu',
+                          'Tilmeez Project\nFor Shehu 2027',
                           style: _displayLarge(context),
                         ),
                         const SizedBox(height: 28),
@@ -765,11 +766,12 @@ class _DesktopHomePageState extends State<DesktopHomePage>
                       style: _headlineLarge(context),
                     ),
                     const SizedBox(height: 24),
+                    // ✅ UPDATED CAMPAIGN NAME IN PROSE
                     Text(
                       'Under the Peoples Redemption Party (PRP), Shehu is running to represent '
                       'Bauchi North Senatorial District — comprising Katagum, Gamawa, Zaki, '
-                      'Itas/Gadau, Shira, Giade and Jama\'are. The Tilmeez Project 2027 is a '
-                      'peoples-first agenda built on unwavering compassion, protecting dignity '
+                      'Itas/Gadau, Shira, Giade and Jama\'are. The Tilmeez Project For Shehu 2027 '
+                      'is a peoples-first agenda built on unwavering compassion, protecting dignity '
                       'and restoring hope for the poor, vulnerable and marginalized.',
                       style: _bodyLarge(context),
                     ),
@@ -882,13 +884,14 @@ class _DesktopHomePageState extends State<DesktopHomePage>
                       ),
                     ),
                     const SizedBox(width: 6),
+                    // ✅ UPDATED CAMPAIGN BADGE TEXT
                     Text(
-                      'TILMEEZ 2027',
+                      'TILMEEZ FOR SHEHU 2027',
                       style: GoogleFonts.poppins(
-                        fontSize: 9,
+                        fontSize: 8.5,
                         fontWeight: FontWeight.w700,
                         color: prpGold,
-                        letterSpacing: 1.2,
+                        letterSpacing: 0.8,
                       ),
                     ),
                   ],
@@ -1995,8 +1998,9 @@ class _DesktopHomePageState extends State<DesktopHomePage>
                     const SizedBox(height: 20),
                     ConstrainedBox(
                       constraints: const BoxConstraints(maxWidth: 600),
+                      // ✅ UPDATED CAMPAIGN NAME IN CTA
                       child: Text(
-                        'Partner with the Tilmeez Project 2027 for Shehu to protect dignity and restore hope '
+                        'Partner with the Tilmeez Project For Shehu 2027 to protect dignity and restore hope '
                         'for vulnerable communities across Bauchi North.',
                         style: GoogleFonts.inter(
                           fontSize: 18,
