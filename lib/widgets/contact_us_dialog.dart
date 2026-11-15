@@ -33,6 +33,7 @@ class _ContactUsDialogState extends State<ContactUsDialog> {
   final TextEditingController _messageController = TextEditingController();
   bool _isLoading = false;
 
+  // Supabase client — safe to grab once; the instance is a singleton.
   final SupabaseClient _supabase = Supabase.instance.client;
 
   @override
@@ -44,41 +45,63 @@ class _ContactUsDialogState extends State<ContactUsDialog> {
   }
 
   // ---------------------------------------------------------------------------
-  // SUBMIT
+  // VALIDATION
+  // ---------------------------------------------------------------------------
+  bool _isValidEmail(String email) {
+    return RegExp(r'^[\w\.\-+]+@[\w\-]+\.[\w\.\-]+$').hasMatch(email);
+  }
+
+  // ---------------------------------------------------------------------------
+  // SUBMIT — Supabase insert
   // ---------------------------------------------------------------------------
   Future<void> _submitContactForm() async {
-    if (_nameController.text.isEmpty ||
-        _emailController.text.isEmpty ||
-        _messageController.text.isEmpty) {
+    final name = _nameController.text.trim();
+    final email = _emailController.text.trim();
+    final message = _messageController.text.trim();
+
+    // --- Client-side validation -------------------------------------------
+    if (name.isEmpty || email.isEmpty || message.isEmpty) {
       CustomToast.warning(context, 'Please fill all fields');
+      return;
+    }
+    if (!_isValidEmail(email)) {
+      CustomToast.warning(context, 'Please enter a valid email address');
       return;
     }
 
     setState(() => _isLoading = true);
 
     try {
-      final response = await _supabase.from('contact_submissions').insert({
-        'name': _nameController.text,
-        'email': _emailController.text,
-        'message': _messageController.text,
-        'submitted_at': DateTime.now().toIso8601String(),
+      // Insert into Supabase.
+      // `submitted_at` is omitted on purpose — let the DB default (now())
+      // handle it. If your column is nullable text, add it back manually.
+      await _supabase.from('contact_submissions').insert({
+        'name': name,
+        'email': email,
+        'message': message,
+        'submitted_at': DateTime.now().toUtc().toIso8601String(),
       });
 
-      if (response != null) {
-        throw response.error!;
-      }
-
-      if (mounted) {
-        Navigator.of(context).pop();
-        CustomToast.success(
-          context,
-          'Your message has been sent successfully!',
-        );
-      }
+      // insert() throws PostgrestException on failure, so reaching here = success.
+      if (!mounted) return;
+      Navigator.of(context).pop();
+      CustomToast.success(context, 'Your message has been sent successfully!');
+    } on PostgrestException catch (e) {
+      // Supabase-specific error (RLS, constraint violation, etc.)
+      debugPrint(
+        '[ContactUsDialog] PostgrestException: ${e.message} '
+        '| code: ${e.code} | details: ${e.details}',
+      );
+      if (!mounted) return;
+      CustomToast.error(
+        context,
+        'Could not send message (${e.code ?? 'error'}). Please try again.',
+      );
     } catch (e) {
-      if (mounted) {
-        CustomToast.error(context, 'Failed to send message. Please try again.');
-      }
+      // Network / unexpected
+      debugPrint('[ContactUsDialog] Unexpected error: $e');
+      if (!mounted) return;
+      CustomToast.error(context, 'Failed to send message. Please try again.');
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
