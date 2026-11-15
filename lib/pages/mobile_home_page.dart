@@ -10,6 +10,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../utils/constants/colors.dart';
 import '../widgets/footer.dart';
+import 'lga_detail_screen.dart';
 
 class MobileHomePage extends StatefulWidget {
   const MobileHomePage({super.key});
@@ -21,7 +22,7 @@ class MobileHomePage extends StatefulWidget {
 class _MobileHomePageState extends State<MobileHomePage>
     with SingleTickerProviderStateMixin {
   // ---------------------------------------------------------------------------
-  // PRP CAMPAIGN PALETTE (identical to Desktop/Tablet)
+  // PRP CAMPAIGN PALETTE
   // ---------------------------------------------------------------------------
   static const Color prpRed = Color(0xFFC8102E);
   static const Color prpDarkRed = Color(0xFF9E0B22);
@@ -53,8 +54,12 @@ class _MobileHomePageState extends State<MobileHomePage>
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
 
+  // Scroll controller for the horizontal Pillars carousel
+  final ScrollController _pillarsController = ScrollController();
+  int _pillarIndex = 0;
+
   // ---------------------------------------------------------------------------
-  // CAMPAIGN DATA (same as Desktop)
+  // CAMPAIGN DATA
   // ---------------------------------------------------------------------------
   final List<Map<String, dynamic>> _voterData = [
     {'lga': 'Katagum', 'voters': 188254, 'units': 384, 'wards': 12},
@@ -264,12 +269,23 @@ class _MobileHomePageState extends State<MobileHomePage>
         setState(() => _showScrollToTop = false);
       }
     });
+
+    _pillarsController.addListener(() {
+      final cardWidth = 260.0 + 14.0; // card width + margin
+      final newIndex = (_pillarsController.offset / cardWidth).round();
+      if (newIndex != _pillarIndex && mounted) {
+        setState(
+          () => _pillarIndex = newIndex.clamp(0, _focusAreas.length - 1),
+        );
+      }
+    });
   }
 
   @override
   void dispose() {
     _gradientTimer?.cancel();
     _scrollController.dispose();
+    _pillarsController.dispose();
     _animationController.dispose();
     _projects.clear();
     super.dispose();
@@ -315,6 +331,7 @@ class _MobileHomePageState extends State<MobileHomePage>
       'id': project['id'],
       'title': project['title'] ?? 'Untitled Priority',
       'description': project['description'] ?? 'No description',
+      'image': project['image_url'] ?? '',
       'icon': _getProjectIcon(project['title']),
       'color': _getProjectColor(project['title']),
       'tag': project['sdg'] ?? project['tag'] ?? '',
@@ -346,34 +363,34 @@ class _MobileHomePageState extends State<MobileHomePage>
   }
 
   // ---------------------------------------------------------------------------
-  // TYPOGRAPHY (mobile-tuned)
+  // TYPOGRAPHY
   // ---------------------------------------------------------------------------
   TextStyle _displayLarge() => GoogleFonts.poppins(
     fontSize: 34,
     fontWeight: FontWeight.w800,
     color: prpWhite,
-    height: 1.14,
-    letterSpacing: -1,
+    height: 1.1,
+    letterSpacing: -1.2,
   );
 
   TextStyle _headlineLarge() => GoogleFonts.poppins(
-    fontSize: 26,
+    fontSize: 28,
     fontWeight: FontWeight.w700,
     color: _darkMode ? prpWhite : prpBlack,
-    height: 1.22,
-    letterSpacing: -0.6,
+    height: 1.2,
+    letterSpacing: -0.8,
   );
 
   TextStyle _headlineMedium() => GoogleFonts.poppins(
-    fontSize: 20,
+    fontSize: 24,
     fontWeight: FontWeight.w700,
     color: _darkMode ? prpWhite : prpBlack,
     height: 1.25,
-    letterSpacing: -0.4,
+    letterSpacing: -0.5,
   );
 
   TextStyle _headlineSmall() => GoogleFonts.poppins(
-    fontSize: 17,
+    fontSize: 20,
     fontWeight: FontWeight.w600,
     color: _darkMode ? prpWhite : prpBlack,
     height: 1.3,
@@ -383,35 +400,36 @@ class _MobileHomePageState extends State<MobileHomePage>
     fontSize: 14,
     fontWeight: FontWeight.w400,
     color: _darkMode ? const Color(0xFFD1D5DB) : prpGrey,
-    height: 1.65,
+    height: 1.7,
   );
 
   TextStyle _bodyMedium() => GoogleFonts.inter(
     fontSize: 12.5,
     fontWeight: FontWeight.w400,
     color: _darkMode ? const Color(0xFFD1D5DB) : prpGrey,
-    height: 1.55,
+    height: 1.6,
   );
 
   // ---------------------------------------------------------------------------
-  // SHARED HELPERS
+  // HELPERS
   // ---------------------------------------------------------------------------
   Widget _sectionLabel(String text) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(width: 16, height: 2, color: prpRed),
-        const SizedBox(width: 8),
-        Text(
-          text,
-          style: GoogleFonts.poppins(
-            fontSize: 10.5,
-            fontWeight: FontWeight.w700,
-            color: prpRed,
-            letterSpacing: 2,
-          ),
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: prpRed.withOpacity(0.08),
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: prpRed.withOpacity(0.2), width: 1),
+      ),
+      child: Text(
+        text,
+        style: GoogleFonts.poppins(
+          fontSize: 10,
+          fontWeight: FontWeight.w700,
+          color: prpRed,
+          letterSpacing: 2,
         ),
-      ],
+      ),
     );
   }
 
@@ -428,9 +446,9 @@ class _MobileHomePageState extends State<MobileHomePage>
             borderRadius: BorderRadius.circular(12),
             boxShadow: [
               BoxShadow(
-                color: color.withOpacity(0.30),
-                blurRadius: 14,
-                offset: const Offset(0, 6),
+                color: color.withOpacity(0.35),
+                blurRadius: 16,
+                offset: const Offset(0, 8),
               ),
             ],
           ),
@@ -445,8 +463,8 @@ class _MobileHomePageState extends State<MobileHomePage>
                   color: Colors.white,
                 ),
               ),
-              const SizedBox(width: 8),
-              const Icon(Iconsax.arrow_right_3, color: Colors.white, size: 15),
+              const SizedBox(width: 6),
+              const Icon(Iconsax.arrow_right_3, color: Colors.white, size: 14),
             ],
           ),
         ),
@@ -483,60 +501,59 @@ class _MobileHomePageState extends State<MobileHomePage>
   // HERO
   // ---------------------------------------------------------------------------
   Widget _buildHeroSection() {
-    final gradients = [
+    final gradientOptions = [
       [prpBlack, const Color(0xFF2A060C), prpRed],
       [prpBlack, prpDarkRed, const Color(0xFF7A0A1A)],
       [const Color(0xFF1A1A1A), prpRed, prpDarkRed],
     ];
 
     return Container(
+      constraints: BoxConstraints(
+        minHeight: MediaQuery.of(context).size.height - 40,
+      ),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: gradients[_currentGradientIndex],
+          colors: gradientOptions[_currentGradientIndex],
         ),
       ),
-      child: SafeArea(
-        bottom: false,
-        child: Stack(
-          children: [
-            Positioned(
-              top: -140,
-              right: -120,
-              child: Container(
-                width: 300,
-                height: 300,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: prpGold.withOpacity(0.10),
-                    width: 2,
-                  ),
-                ),
+      child: Stack(
+        children: [
+          Positioned(
+            top: -120,
+            right: -80,
+            child: Container(
+              width: 300,
+              height: 300,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: prpGold.withOpacity(0.08), width: 2),
               ),
             ),
-            Positioned(
-              bottom: -80,
-              left: -60,
-              child: Container(
-                width: 200,
-                height: 200,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: prpRed.withOpacity(0.18),
-                ),
+          ),
+          Positioned(
+            bottom: -40,
+            left: -60,
+            child: Container(
+              width: 200,
+              height: 200,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: prpRed.withOpacity(0.15),
               ),
             ),
-            Padding(
+          ),
+          Center(
+            child: Container(
               padding: const EdgeInsets.symmetric(
                 horizontal: _screenPadding,
-                vertical: 32,
+                vertical: 40,
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // PRP header row
                   Row(
                     children: [
                       Container(
@@ -546,19 +563,19 @@ class _MobileHomePageState extends State<MobileHomePage>
                         ),
                         decoration: BoxDecoration(
                           color: prpRed,
-                          borderRadius: BorderRadius.circular(3),
+                          borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
                           'PRP',
                           style: GoogleFonts.poppins(
-                            fontSize: 10,
+                            fontSize: 9,
                             fontWeight: FontWeight.w800,
                             color: prpWhite,
-                            letterSpacing: 1.3,
+                            letterSpacing: 1.2,
                           ),
                         ),
                       ),
-                      const SizedBox(width: 10),
+                      const SizedBox(width: 8),
                       Expanded(
                         child: Text(
                           'BAUCHI NORTH SENATORIAL DISTRICT',
@@ -566,57 +583,52 @@ class _MobileHomePageState extends State<MobileHomePage>
                             fontSize: 9,
                             fontWeight: FontWeight.w600,
                             color: prpGold,
-                            letterSpacing: 1.5,
+                            letterSpacing: 1.2,
                           ),
-                          maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 28),
+                  const SizedBox(height: 22),
                   Text(
-                    'Tilmeez Project\n2027 for Shehu',
+                    'Tilmeez Project\nFor Shehu 2027',
                     style: _displayLarge(),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 18),
                   Text(
-                    'A peoples-first movement for Bauchi North — 7 LGAs, 74 wards '
-                    'and 1,666 polling units united under one vision: compassion, '
-                    'dignity and inclusive development for all.',
+                    'A peoples-first movement for Bauchi North — 7 LGAs, '
+                    '74 wards and 1,666 polling units united under one vision: '
+                    'compassion, dignity and inclusive development for all.',
                     style: GoogleFonts.inter(
                       fontSize: 13.5,
                       fontWeight: FontWeight.w400,
-                      color: Colors.white.withOpacity(0.88),
+                      color: Colors.white.withOpacity(0.85),
                       height: 1.65,
                     ),
                   ),
-                  const SizedBox(height: 24),
-                  Row(
+                  const SizedBox(height: 26),
+                  Wrap(
+                    spacing: 10,
+                    runSpacing: 10,
                     children: [
-                      Expanded(
-                        child: _primaryButton('Our Priorities', prpRed, () {
-                          _scrollController.animateTo(
-                            MediaQuery.of(context).size.height * 3,
-                            duration: const Duration(milliseconds: 800),
-                            curve: Curves.easeInOutCubic,
-                          );
-                        }),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: _outlineButton('Join Us', () {
-                          _scrollController.animateTo(
-                            MediaQuery.of(context).size.height * 8,
-                            duration: const Duration(milliseconds: 800),
-                            curve: Curves.easeInOutCubic,
-                          );
-                        }),
-                      ),
+                      _primaryButton('Our Priorities', prpRed, () {
+                        _scrollController.animateTo(
+                          MediaQuery.of(context).size.height * 3,
+                          duration: const Duration(milliseconds: 800),
+                          curve: Curves.easeInOutCubic,
+                        );
+                      }),
+                      _outlineButton('Join the Movement', () {
+                        _scrollController.animateTo(
+                          MediaQuery.of(context).size.height * 8,
+                          duration: const Duration(milliseconds: 800),
+                          curve: Curves.easeInOutCubic,
+                        );
+                      }),
                     ],
                   ),
                   const SizedBox(height: 32),
-                  // Stat card
                   Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
@@ -630,16 +642,9 @@ class _MobileHomePageState extends State<MobileHomePage>
                         ],
                       ),
                       border: Border.all(
-                        color: prpGold.withOpacity(0.32),
+                        color: prpGold.withOpacity(0.35),
                         width: 1,
                       ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.22),
-                          blurRadius: 24,
-                          offset: const Offset(0, 12),
-                        ),
-                      ],
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -659,14 +664,14 @@ class _MobileHomePageState extends State<MobileHomePage>
                                 color: prpGold,
                               ),
                             ),
-                            const SizedBox(width: 10),
+                            const SizedBox(width: 8),
                             Text(
                               'BAUCHI NORTH AT A GLANCE',
                               style: GoogleFonts.poppins(
                                 fontSize: 9.5,
                                 fontWeight: FontWeight.w700,
                                 color: prpGold,
-                                letterSpacing: 1.6,
+                                letterSpacing: 1.5,
                               ),
                             ),
                           ],
@@ -686,7 +691,7 @@ class _MobileHomePageState extends State<MobileHomePage>
                             ),
                           ],
                         ),
-                        const SizedBox(height: 14),
+                        const SizedBox(height: 12),
                         Row(
                           children: [
                             Expanded(child: _heroStat('74', 'Wards')),
@@ -708,7 +713,7 @@ class _MobileHomePageState extends State<MobileHomePage>
                           style: GoogleFonts.inter(
                             fontSize: 11,
                             color: Colors.white60,
-                            height: 1.4,
+                            height: 1.5,
                           ),
                         ),
                       ],
@@ -717,8 +722,8 @@ class _MobileHomePageState extends State<MobileHomePage>
                 ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -743,7 +748,6 @@ class _MobileHomePageState extends State<MobileHomePage>
             fontSize: 10.5,
             color: Colors.white60,
             fontWeight: FontWeight.w500,
-            height: 1.3,
           ),
         ),
       ],
@@ -756,19 +760,88 @@ class _MobileHomePageState extends State<MobileHomePage>
   Widget _buildAboutSection() {
     return Container(
       color: _darkMode ? prpBlack : prpOffWhite,
-      padding: EdgeInsets.symmetric(vertical: 56, horizontal: _screenPadding),
+      padding: const EdgeInsets.symmetric(
+        vertical: 56,
+        horizontal: _screenPadding,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Container(
+                height: 340,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(22),
+                  image: const DecorationImage(
+                    image: AssetImage('assets/images/about_shehu.jpg'),
+                    fit: BoxFit.cover,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: prpRed.withOpacity(0.22),
+                      blurRadius: 28,
+                      offset: const Offset(0, 14),
+                    ),
+                  ],
+                ),
+              ),
+              Positioned(
+                bottom: -20,
+                right: 12,
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: prpRed,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: prpRed.withOpacity(0.45),
+                        blurRadius: 20,
+                        offset: const Offset(0, 10),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '2027',
+                        style: GoogleFonts.poppins(
+                          fontSize: 28,
+                          fontWeight: FontWeight.w800,
+                          color: prpGold,
+                          height: 1,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        'ELECTION ROADMAP',
+                        style: GoogleFonts.poppins(
+                          fontSize: 9,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                          letterSpacing: 1.2,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              Positioned(bottom: -20, left: 12, child: _buildHonTilmeezCard()),
+            ],
+          ),
+          const SizedBox(height: 48),
           _sectionLabel('THE CANDIDATE'),
-          const SizedBox(height: 14),
+          const SizedBox(height: 18),
           Text('Shehu for\nBauchi North', style: _headlineLarge()),
           const SizedBox(height: 16),
           Text(
             'Under the Peoples Redemption Party (PRP), Shehu is running to represent '
             'Bauchi North Senatorial District — comprising Katagum, Gamawa, Zaki, '
-            'Itas/Gadau, Shira, Giade and Jama\'are. The Tilmeez Project 2027 is a '
-            'peoples-first agenda built on unwavering compassion, protecting dignity '
+            'Itas/Gadau, Shira, Giade and Jama\'are. The Tilmeez Project For Shehu 2027 '
+            'is a peoples-first agenda built on unwavering compassion, protecting dignity '
             'and restoring hope for the poor, vulnerable and marginalized.',
             style: _bodyLarge(),
           ),
@@ -779,12 +852,123 @@ class _MobileHomePageState extends State<MobileHomePage>
             'Inclusive development and opportunity for every community in Bauchi North.',
             prpRed,
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 14),
           _buildValueTile(
             Iconsax.flag,
             'Mission',
             'Uplift vulnerable communities through sustainable, dignity-restoring programmes.',
             prpGold,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHonTilmeezCard() {
+    return Container(
+      padding: const EdgeInsets.all(7),
+      decoration: BoxDecoration(
+        color: _darkMode ? prpCharcoal : Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: prpGold.withOpacity(0.55), width: 2),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.28),
+            blurRadius: 24,
+            offset: const Offset(0, 12),
+          ),
+          BoxShadow(
+            color: prpGold.withOpacity(0.18),
+            blurRadius: 20,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 60,
+            height: 60,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(color: prpGold, width: 2.2),
+              image: const DecorationImage(
+                image: AssetImage('assets/images/about_tilmeez.jpg'),
+                fit: BoxFit.cover,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: prpGold.withOpacity(0.35),
+                  blurRadius: 12,
+                  offset: const Offset(0, 3),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 10),
+          Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 5,
+                        vertical: 1.5,
+                      ),
+                      decoration: BoxDecoration(
+                        color: prpRed,
+                        borderRadius: BorderRadius.circular(3),
+                      ),
+                      child: Text(
+                        'PRP',
+                        style: GoogleFonts.poppins(
+                          fontSize: 7,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.white,
+                          letterSpacing: 0.8,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 5),
+                    Text(
+                      'TILMEEZ FOR SHEHU 2027',
+                      style: GoogleFonts.poppins(
+                        fontSize: 7.5,
+                        fontWeight: FontWeight.w700,
+                        color: prpGold,
+                        letterSpacing: 0.6,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 5),
+                Text(
+                  'Hon Tilmeez',
+                  style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w800,
+                    color: _darkMode ? Colors.white : prpBlack,
+                    letterSpacing: -0.3,
+                    height: 1.1,
+                  ),
+                ),
+                const SizedBox(height: 1),
+                Text(
+                  'For Bauchi North',
+                  style: GoogleFonts.inter(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w500,
+                    color: _darkMode ? Colors.white60 : prpGrey,
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -802,42 +986,42 @@ class _MobileHomePageState extends State<MobileHomePage>
       decoration: BoxDecoration(
         color: _darkMode ? prpCharcoal : Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withOpacity(0.22), width: 1),
+        border: Border.all(color: color.withOpacity(0.25), width: 1),
         boxShadow: [
           BoxShadow(
-            color: color.withOpacity(0.06),
+            color: color.withOpacity(0.08),
             blurRadius: 16,
             offset: const Offset(0, 6),
           ),
         ],
       ),
-      child: Row(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
             padding: const EdgeInsets.all(9),
             decoration: BoxDecoration(
               color: color.withOpacity(0.12),
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(9),
             ),
             child: Icon(icon, color: color, size: 18),
           ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: GoogleFonts.poppins(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: _darkMode ? Colors.white : prpBlack,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(description, style: _bodyMedium()),
-              ],
+          const SizedBox(height: 12),
+          Text(
+            title,
+            style: GoogleFonts.poppins(
+              fontSize: 15,
+              fontWeight: FontWeight.w700,
+              color: _darkMode ? Colors.white : prpBlack,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            description,
+            style: GoogleFonts.inter(
+              fontSize: 12,
+              color: _darkMode ? Colors.white60 : prpGrey,
+              height: 1.55,
             ),
           ),
         ],
@@ -846,24 +1030,31 @@ class _MobileHomePageState extends State<MobileHomePage>
   }
 
   // ---------------------------------------------------------------------------
-  // CORE VALUES (2x2 compact grid)
+  // CORE VALUES (mobile: 2×2 grid) — beautiful upgrade
   // ---------------------------------------------------------------------------
   Widget _buildCoreValuesSection() {
     return Container(
       color: _darkMode ? prpBlack : Colors.white,
-      padding: EdgeInsets.symmetric(vertical: 56, horizontal: _screenPadding),
+      padding: const EdgeInsets.symmetric(
+        vertical: 56,
+        horizontal: _screenPadding,
+      ),
       child: Column(
         children: [
           _sectionLabel('OUR VALUES'),
-          const SizedBox(height: 14),
-          Text('Core Values', style: _headlineLarge()),
-          const SizedBox(height: 10),
+          const SizedBox(height: 18),
+          Text(
+            'Our Core Values',
+            style: _headlineLarge(),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 12),
           Text(
             'The principles that guide our service',
             style: _bodyLarge(),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 32),
           GridView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
@@ -871,7 +1062,7 @@ class _MobileHomePageState extends State<MobileHomePage>
               crossAxisCount: 2,
               crossAxisSpacing: 12,
               mainAxisSpacing: 12,
-              childAspectRatio: 0.95,
+              childAspectRatio: 0.86,
             ),
             itemCount: _coreValues.length,
             itemBuilder: (context, index) =>
@@ -883,164 +1074,309 @@ class _MobileHomePageState extends State<MobileHomePage>
   }
 
   Widget _buildValueCard(Map<String, dynamic> value, int number) {
+    final color = value['color'] as Color;
     return Container(
-      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: _darkMode ? prpCharcoal : prpOffWhite,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: value['color'].withOpacity(0.15), width: 1),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: value['color'].withOpacity(0.12),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(value['icon'], size: 20, color: value['color']),
-              ),
-              Text(
-                '0$number',
-                style: GoogleFonts.poppins(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w800,
-                  color: value['color'].withOpacity(0.25),
-                  height: 1,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Text(
-            value['title'],
-            style: GoogleFonts.poppins(
-              fontSize: 13.5,
-              fontWeight: FontWeight.w700,
-              color: _darkMode ? Colors.white : prpBlack,
-            ),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-          const SizedBox(height: 4),
-          Expanded(
-            child: Text(
-              value['description'],
-              style: _bodyMedium().copyWith(fontSize: 11.5),
-              maxLines: 3,
-              overflow: TextOverflow.ellipsis,
-            ),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: color.withOpacity(0.20), width: 1.2),
+        boxShadow: [
+          BoxShadow(
+            color: color.withOpacity(0.08),
+            blurRadius: 14,
+            offset: const Offset(0, 6),
           ),
         ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(17),
+        child: Stack(
+          children: [
+            // Tinted gradient accent at the top
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              height: 60,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [color.withOpacity(0.18), color.withOpacity(0.02)],
+                  ),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        width: 42,
+                        height: 42,
+                        decoration: BoxDecoration(
+                          color: color.withOpacity(0.15),
+                          borderRadius: BorderRadius.circular(11),
+                        ),
+                        child: Icon(value['icon'], size: 20, color: color),
+                      ),
+                      Text(
+                        '0$number',
+                        style: GoogleFonts.poppins(
+                          fontSize: 22,
+                          fontWeight: FontWeight.w800,
+                          color: color.withOpacity(0.30),
+                          height: 1,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const Spacer(),
+                  Text(
+                    value['title'],
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: _darkMode ? Colors.white : prpBlack,
+                      height: 1.2,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    value['description'],
+                    style: GoogleFonts.inter(
+                      fontSize: 11,
+                      color: _darkMode ? Colors.white60 : prpGrey,
+                      height: 1.45,
+                    ),
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
   // ---------------------------------------------------------------------------
-  // FOCUS AREAS (horizontal swipe carousel)
+  // FOCUS AREAS (mobile: horizontal scrollable) — beautiful upgrade
   // ---------------------------------------------------------------------------
   Widget _buildFocusSection() {
     return Container(
       color: _darkMode ? prpBlack : prpOffWhite,
-      padding: EdgeInsets.symmetric(vertical: 56, horizontal: _screenPadding),
+      padding: const EdgeInsets.symmetric(vertical: 56),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _sectionLabel('OUR PRIORITIES'),
-          const SizedBox(height: 14),
-          Text('Five Pillars for\nBauchi North', style: _headlineLarge()),
-          const SizedBox(height: 10),
-          Text(
-            'Aligned with the needs of all seven LGAs and the UN Sustainable Development Goals.',
-            style: _bodyLarge(),
-          ),
-          const SizedBox(height: 24),
-          SizedBox(
-            height: 240,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              itemCount: _focusAreas.length,
-              separatorBuilder: (_, __) => const SizedBox(width: 12),
-              itemBuilder: (context, index) =>
-                  _buildSDGCard(_focusAreas[index]),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: _screenPadding),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _sectionLabel('OUR PRIORITIES'),
+                const SizedBox(height: 18),
+                Text('Five Pillars for\nBauchi North', style: _headlineLarge()),
+                const SizedBox(height: 12),
+                Text(
+                  'Aligned with the needs of all seven LGAs and the UN Sustainable Development Goals.',
+                  style: _bodyLarge(),
+                ),
+              ],
             ),
+          ),
+          const SizedBox(height: 28),
+          // Horizontal scrollable pillars
+          SizedBox(
+            height: 320,
+            child: ListView.separated(
+              controller: _pillarsController,
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: _screenPadding),
+              physics: const BouncingScrollPhysics(),
+              itemCount: _focusAreas.length,
+              separatorBuilder: (_, __) => const SizedBox(width: 14),
+              itemBuilder: (context, index) {
+                return _buildSDGCard(_focusAreas[index], index + 1);
+              },
+            ),
+          ),
+          const SizedBox(height: 20),
+          // Page indicator dots
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: List.generate(_focusAreas.length, (i) {
+              final isActive = i == _pillarIndex;
+              return AnimatedContainer(
+                duration: const Duration(milliseconds: 250),
+                margin: const EdgeInsets.symmetric(horizontal: 3),
+                width: isActive ? 22 : 8,
+                height: 8,
+                decoration: BoxDecoration(
+                  color: isActive ? prpRed : prpRed.withOpacity(0.20),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              );
+            }),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildSDGCard(Map<String, dynamic> sdg) {
-    return Container(
-      width: 200,
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: _darkMode ? prpCharcoal : Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: sdg['color'].withOpacity(0.22), width: 1.5),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 52,
-            height: 52,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: sdg['color'].withOpacity(0.12),
+  Widget _buildSDGCard(Map<String, dynamic> sdg, int number) {
+    final color = sdg['color'] as Color;
+    return SizedBox(
+      width: 260,
+      child: Container(
+        decoration: BoxDecoration(
+          color: _darkMode ? prpCharcoal : Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: color.withOpacity(0.22), width: 1.5),
+          boxShadow: [
+            BoxShadow(
+              color: color.withOpacity(0.10),
+              blurRadius: 20,
+              offset: const Offset(0, 10),
             ),
-            child: Icon(sdg['icon'], size: 24, color: sdg['color']),
-          ),
-          const SizedBox(height: 14),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-            decoration: BoxDecoration(
-              color: sdg['color'],
-              borderRadius: BorderRadius.circular(4),
-            ),
-            child: Text(
-              sdg['goal'],
-              style: GoogleFonts.poppins(
-                fontSize: 9,
-                fontWeight: FontWeight.w800,
-                color: Colors.white,
-                letterSpacing: 1.1,
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(19),
+          child: Stack(
+            children: [
+              // Colored gradient header
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                height: 120,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        color.withOpacity(0.22),
+                        color.withOpacity(0.04),
+                      ],
+                    ),
+                  ),
+                ),
               ),
-            ),
+              Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          width: 60,
+                          height: 60,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: color.withOpacity(0.18),
+                            border: Border.all(
+                              color: color.withOpacity(0.35),
+                              width: 1.2,
+                            ),
+                          ),
+                          child: Icon(sdg['icon'], size: 28, color: color),
+                        ),
+                        Text(
+                          '0$number',
+                          style: GoogleFonts.poppins(
+                            fontSize: 30,
+                            fontWeight: FontWeight.w800,
+                            color: color.withOpacity(0.30),
+                            height: 1,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 18),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: color,
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        sdg['goal'],
+                        style: GoogleFonts.poppins(
+                          fontSize: 9.5,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.white,
+                          letterSpacing: 1.2,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    Text(
+                      sdg['title'],
+                      style: GoogleFonts.poppins(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w700,
+                        color: _darkMode ? Colors.white : prpBlack,
+                        height: 1.2,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      sdg['description'],
+                      style: GoogleFonts.inter(
+                        fontSize: 12.5,
+                        color: _darkMode ? Colors.white60 : prpGrey,
+                        height: 1.55,
+                      ),
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const Spacer(),
+                    Row(
+                      children: [
+                        Text(
+                          'Learn more',
+                          style: GoogleFonts.poppins(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: color,
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        Icon(Iconsax.arrow_right_3, size: 14, color: color),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 12),
-          Text(
-            sdg['title'],
-            style: GoogleFonts.poppins(
-              fontSize: 14,
-              fontWeight: FontWeight.w700,
-              color: _darkMode ? Colors.white : prpBlack,
-              height: 1.25,
-            ),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-          const SizedBox(height: 6),
-          Expanded(
-            child: Text(
-              sdg['description'],
-              style: _bodyMedium().copyWith(fontSize: 11.5),
-              maxLines: 3,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
 
   // ---------------------------------------------------------------------------
-  // IMPACT (2x2 grid over dark gradient)
+  // IMPACT (mobile: 2x2 grid)
   // ---------------------------------------------------------------------------
   Widget _buildImpactSection() {
     return Container(
@@ -1051,7 +1387,10 @@ class _MobileHomePageState extends State<MobileHomePage>
           colors: [prpBlack, prpDarkRed],
         ),
       ),
-      padding: EdgeInsets.symmetric(vertical: 56, horizontal: _screenPadding),
+      padding: const EdgeInsets.symmetric(
+        vertical: 56,
+        horizontal: _screenPadding,
+      ),
       child: Column(
         children: [
           Text(
@@ -1059,13 +1398,13 @@ class _MobileHomePageState extends State<MobileHomePage>
             style: _headlineMedium().copyWith(color: Colors.white),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
           Text(
             'Key numbers for planning and projections across the district',
             style: GoogleFonts.inter(fontSize: 13, color: Colors.white60),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 36),
           GridView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
@@ -1086,36 +1425,35 @@ class _MobileHomePageState extends State<MobileHomePage>
 
   Widget _buildImpactStat(Map<String, dynamic> stat) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.05),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: prpGold.withOpacity(0.22), width: 1),
+        color: Colors.white.withOpacity(0.04),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: prpGold.withOpacity(0.2), width: 1),
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
-            width: 40,
-            height: 40,
+            width: 44,
+            height: 44,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: stat['color'].withOpacity(0.15),
             ),
-            child: Icon(stat['icon'], size: 18, color: stat['color']),
+            child: Icon(stat['icon'], size: 20, color: stat['color']),
           ),
           const SizedBox(height: 12),
           Text(
             stat['number'],
             style: GoogleFonts.poppins(
-              fontSize: 18,
+              fontSize: 20,
               fontWeight: FontWeight.w800,
               color: Colors.white,
               letterSpacing: -0.6,
             ),
           ),
-          const SizedBox(height: 2),
+          const SizedBox(height: 4),
           Text(
             stat['label'],
             style: GoogleFonts.inter(
@@ -1124,8 +1462,7 @@ class _MobileHomePageState extends State<MobileHomePage>
               fontWeight: FontWeight.w500,
               height: 1.3,
             ),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.center,
           ),
         ],
       ),
@@ -1133,60 +1470,67 @@ class _MobileHomePageState extends State<MobileHomePage>
   }
 
   // ---------------------------------------------------------------------------
-  // LGA TABLE (compact list + bars)
+  // LGA TABLE (mobile: bars + table stacked)
   // ---------------------------------------------------------------------------
   Widget _buildLgaTableSection() {
     final totalVoters = _voterData.fold<int>(
       0,
       (sum, row) => sum + (row['voters'] as int),
     );
+    final totalUnits = _voterData.fold<int>(
+      0,
+      (sum, row) => sum + (row['units'] as int),
+    );
+    final totalWards = _voterData.fold<int>(
+      0,
+      (sum, row) => sum + (row['wards'] as int),
+    );
     final maxVoters = _voterData
         .map((r) => r['voters'] as int)
         .reduce((a, b) => a > b ? a : b);
 
-    String fmt(int n) => n.toString().replaceAllMapped(
-      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-      (m) => '${m[1]},',
-    );
-
     return Container(
       color: _darkMode ? prpBlack : Colors.white,
-      padding: EdgeInsets.symmetric(vertical: 56, horizontal: _screenPadding),
+      padding: const EdgeInsets.symmetric(
+        vertical: 56,
+        horizontal: _screenPadding,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _sectionLabel('ELECTORAL DATA'),
-          const SizedBox(height: 14),
+          const SizedBox(height: 18),
           Text('Registered Voters\nby LGA (2023)', style: _headlineLarge()),
-          const SizedBox(height: 10),
+          const SizedBox(height: 8),
           Text(
             'Source: INEC 2023 register — 7 LGAs, 74 wards, 1,666 polling units',
             style: _bodyMedium(),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 20),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             decoration: BoxDecoration(
               color: prpRed.withOpacity(0.08),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: prpRed.withOpacity(0.20)),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: prpRed.withOpacity(0.2)),
             ),
             child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Icon(Iconsax.chart_2, size: 16, color: prpRed),
-                const SizedBox(width: 10),
                 Text(
                   'DISTRICT TOTAL',
                   style: GoogleFonts.poppins(
-                    fontSize: 9.5,
+                    fontSize: 9,
                     fontWeight: FontWeight.w700,
                     color: prpRed,
-                    letterSpacing: 1.3,
+                    letterSpacing: 1.4,
                   ),
                 ),
-                const Spacer(),
                 Text(
-                  fmt(totalVoters),
+                  totalVoters.toString().replaceAllMapped(
+                    RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+                    (m) => '${m[1]},',
+                  ),
                   style: GoogleFonts.poppins(
                     fontSize: 16,
                     fontWeight: FontWeight.w800,
@@ -1196,14 +1540,105 @@ class _MobileHomePageState extends State<MobileHomePage>
               ],
             ),
           ),
-          const SizedBox(height: 22),
-          ..._voterData.map((row) => _buildVoterBar(row, maxVoters)),
-          const SizedBox(height: 22),
+          const SizedBox(height: 24),
           Container(
             padding: const EdgeInsets.all(18),
             decoration: BoxDecoration(
               color: _darkMode ? prpCharcoal : prpOffWhite,
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(18),
+              border: Border.all(
+                color: _darkMode ? Colors.white10 : Colors.black12,
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'VOTER DISTRIBUTION',
+                  style: GoogleFonts.poppins(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w700,
+                    color: prpRed,
+                    letterSpacing: 1.2,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                ..._voterData.map((row) => _buildVoterBar(row, maxVoters)),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+          Container(
+            decoration: BoxDecoration(
+              color: _darkMode ? prpCharcoal : prpOffWhite,
+              borderRadius: BorderRadius.circular(18),
+              border: Border.all(
+                color: _darkMode ? Colors.white10 : Colors.black12,
+              ),
+            ),
+            child: Column(
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 12,
+                  ),
+                  decoration: const BoxDecoration(
+                    color: prpRed,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(18),
+                      topRight: Radius.circular(18),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      _tableHeader('LGA', flex: 3),
+                      _tableHeader('Voters', flex: 2),
+                      _tableHeader('Units', flex: 2),
+                      _tableHeader('Wards', flex: 1),
+                      const SizedBox(width: 74),
+                    ],
+                  ),
+                ),
+                ..._voterData.map((row) => _buildVoterRow(row)),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 12,
+                  ),
+                  decoration: BoxDecoration(
+                    color: prpGold.withOpacity(0.15),
+                    borderRadius: const BorderRadius.only(
+                      bottomLeft: Radius.circular(18),
+                      bottomRight: Radius.circular(18),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      _tableCell('TOTAL', bold: true, flex: 3),
+                      _tableCell(
+                        totalVoters.toString().replaceAllMapped(
+                          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+                          (m) => '${m[1]},',
+                        ),
+                        bold: true,
+                        flex: 2,
+                      ),
+                      _tableCell(totalUnits.toString(), bold: true, flex: 2),
+                      _tableCell(totalWards.toString(), bold: true, flex: 1),
+                      const SizedBox(width: 74),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+          Container(
+            padding: const EdgeInsets.all(18),
+            decoration: BoxDecoration(
+              color: _darkMode ? prpCharcoal : prpOffWhite,
+              borderRadius: BorderRadius.circular(18),
               border: Border.all(
                 color: _darkMode ? Colors.white10 : Colors.black12,
               ),
@@ -1218,19 +1653,19 @@ class _MobileHomePageState extends State<MobileHomePage>
                       height: 28,
                       decoration: BoxDecoration(
                         color: prpGold.withOpacity(0.15),
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: BorderRadius.circular(7),
                       ),
                       child: const Icon(
                         Iconsax.info_circle,
-                        size: 14,
+                        size: 15,
                         color: prpGold,
                       ),
                     ),
                     const SizedBox(width: 10),
                     Text(
-                      'Key Findings',
+                      'Key Electoral Findings',
                       style: GoogleFonts.poppins(
-                        fontSize: 14,
+                        fontSize: 15,
                         fontWeight: FontWeight.w700,
                         color: _darkMode ? Colors.white : prpBlack,
                       ),
@@ -1238,13 +1673,20 @@ class _MobileHomePageState extends State<MobileHomePage>
                   ],
                 ),
                 const SizedBox(height: 14),
-                _findingItem('Katagum has the highest voters (188,254).'),
+                _findingItem(
+                  'Katagum has the highest number of registered voters (188,254).',
+                ),
                 _findingItem('Jama\'are has the lowest (64,880).'),
                 _findingItem(
-                  'Katagum, Gamawa and Zaki combine for ~56.1% of Bauchi North\'s electorate.',
+                  'Katagum, Gamawa and Zaki collectively account for 460,616 voters — '
+                  'approximately 56.1% of Bauchi North\'s electorate.',
                 ),
                 _findingItem(
-                  'Bauchi North is ~29.8% of Bauchi State\'s registered voters.',
+                  'Bauchi North represents approximately 29.8% of Bauchi State\'s registered voters.',
+                ),
+                _findingItem(
+                  'INEC reported ~41,973 newly registered voters across Bauchi State in the '
+                  '2025 phase 1 exercise; LGA-level figures for Bauchi North require INEC confirmation.',
                 ),
               ],
             ),
@@ -1256,48 +1698,211 @@ class _MobileHomePageState extends State<MobileHomePage>
 
   Widget _buildVoterBar(Map<String, dynamic> row, int maxVoters) {
     final percent = (row['voters'] as int) / maxVoters;
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                row['lga'],
-                style: GoogleFonts.inter(
-                  fontSize: 12.5,
-                  fontWeight: FontWeight.w600,
-                  color: _darkMode ? Colors.white : prpDarkGrey,
+
+    const nameToCode = {
+      'Katagum': 'KTG',
+      'Gamawa': 'GMW',
+      'Itas/Gadau': 'ITG',
+      "Jama'are": 'JMR',
+      'Shira': 'SHR',
+      'Zaki': 'ZKI',
+      'Giade': 'GDE',
+    };
+    final lgaName = row['lga'] as String;
+    final lgaCode = nameToCode[lgaName] ?? lgaName;
+
+    void openLga() {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => LgaDetailScreen(lgaId: lgaCode, lgaName: lgaName),
+        ),
+      );
+    }
+
+    return InkWell(
+      onTap: openLga,
+      hoverColor: prpRed.withOpacity(0.04),
+      borderRadius: BorderRadius.circular(6),
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    row['lga'],
+                    style: GoogleFonts.inter(
+                      fontSize: 11.5,
+                      fontWeight: FontWeight.w600,
+                      color: _darkMode ? Colors.white : prpDarkGrey,
+                    ),
+                  ),
                 ),
+                const SizedBox(width: 6),
+                Text(
+                  (row['voters'] as int).toString().replaceAllMapped(
+                    RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+                    (m) => '${m[1]},',
+                  ),
+                  style: GoogleFonts.inter(
+                    fontSize: 10.5,
+                    fontWeight: FontWeight.w600,
+                    color: prpRed,
+                  ),
+                ),
+                const SizedBox(width: 6),
+                _buildViewWardsButton(openLga, compact: true),
+              ],
+            ),
+            const SizedBox(height: 4),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(4),
+              child: LinearProgressIndicator(
+                value: percent,
+                minHeight: 6,
+                backgroundColor: _darkMode
+                    ? Colors.white10
+                    : Colors.black.withOpacity(0.05),
+                valueColor: const AlwaysStoppedAnimation<Color>(prpRed),
               ),
-              Text(
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _tableHeader(String text, {required int flex}) {
+    return Expanded(
+      flex: flex,
+      child: Text(
+        text.toUpperCase(),
+        style: GoogleFonts.poppins(
+          fontSize: 9,
+          fontWeight: FontWeight.w700,
+          color: Colors.white,
+          letterSpacing: 0.8,
+        ),
+      ),
+    );
+  }
+
+  Widget _tableCell(String text, {bool bold = false, required int flex}) {
+    return Expanded(
+      flex: flex,
+      child: Text(
+        text,
+        style: GoogleFonts.inter(
+          fontSize: 11,
+          fontWeight: bold ? FontWeight.w700 : FontWeight.w500,
+          color: bold
+              ? (_darkMode ? prpGold : prpRed)
+              : (_darkMode ? Colors.white : prpDarkGrey),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildVoterRow(Map<String, dynamic> row) {
+    final lgaName = row['lga'] as String;
+
+    const nameToCode = {
+      'Katagum': 'KTG',
+      'Gamawa': 'GMW',
+      'Itas/Gadau': 'ITG',
+      "Jama'are": 'JMR',
+      'Shira': 'SHR',
+      'Zaki': 'ZKI',
+      'Giade': 'GDE',
+    };
+    final lgaCode = nameToCode[lgaName] ?? lgaName;
+
+    void openLga() {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => LgaDetailScreen(lgaId: lgaCode, lgaName: lgaName),
+        ),
+      );
+    }
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: openLga,
+        hoverColor: prpRed.withOpacity(0.05),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          decoration: BoxDecoration(
+            border: Border(
+              bottom: BorderSide(
+                color: _darkMode ? Colors.white10 : Colors.black12,
+                width: 1,
+              ),
+            ),
+          ),
+          child: Row(
+            children: [
+              _tableCell(row['lga'], bold: true, flex: 3),
+              _tableCell(
                 (row['voters'] as int).toString().replaceAllMapped(
                   RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
                   (m) => '${m[1]},',
                 ),
-                style: GoogleFonts.inter(
-                  fontSize: 11.5,
-                  fontWeight: FontWeight.w600,
+                flex: 2,
+              ),
+              _tableCell((row['units'] as int).toString(), flex: 2),
+              _tableCell((row['wards'] as int).toString(), flex: 1),
+              const SizedBox(width: 6),
+              _buildViewWardsButton(openLga, compact: true),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildViewWardsButton(VoidCallback onTap, {bool compact = false}) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(7),
+        child: Container(
+          padding: EdgeInsets.symmetric(
+            horizontal: compact ? 7 : 10,
+            vertical: compact ? 5 : 6,
+          ),
+          decoration: BoxDecoration(
+            color: prpRed.withOpacity(0.10),
+            borderRadius: BorderRadius.circular(7),
+            border: Border.all(color: prpRed.withOpacity(0.35), width: 1),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Iconsax.element_3, size: compact ? 10 : 12, color: prpRed),
+              SizedBox(width: compact ? 3 : 4),
+              Text(
+                'View',
+                style: GoogleFonts.poppins(
+                  fontSize: compact ? 9 : 10,
+                  fontWeight: FontWeight.w700,
                   color: prpRed,
                 ),
               ),
+              SizedBox(width: compact ? 3 : 4),
+              Icon(
+                Iconsax.arrow_right_3,
+                size: compact ? 10 : 12,
+                color: prpRed,
+              ),
             ],
           ),
-          const SizedBox(height: 5),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(4),
-            child: LinearProgressIndicator(
-              value: percent,
-              minHeight: 7,
-              backgroundColor: _darkMode
-                  ? Colors.white10
-                  : Colors.black.withOpacity(0.05),
-              valueColor: const AlwaysStoppedAnimation<Color>(prpRed),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -1310,7 +1915,7 @@ class _MobileHomePageState extends State<MobileHomePage>
         children: [
           const Padding(
             padding: EdgeInsets.only(top: 4),
-            child: Icon(Iconsax.tick_circle, size: 13, color: prpRed),
+            child: Icon(Iconsax.tick_circle, size: 14, color: prpRed),
           ),
           const SizedBox(width: 8),
           Expanded(
@@ -1329,34 +1934,31 @@ class _MobileHomePageState extends State<MobileHomePage>
   }
 
   // ---------------------------------------------------------------------------
-  // PROJECTS / PILLARS (single-card horizontal carousel)
+  // PROJECTS / PILLARS (kept but not in main flow)
   // ---------------------------------------------------------------------------
   Widget _buildProjectsSection() {
     return Container(
       color: _darkMode ? prpBlack : prpOffWhite,
-      padding: EdgeInsets.symmetric(vertical: 56, horizontal: _screenPadding),
+      padding: const EdgeInsets.symmetric(
+        vertical: 56,
+        horizontal: _screenPadding,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          _sectionLabel('WHAT WE WILL DO'),
+          const SizedBox(height: 16),
           Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _sectionLabel('WHAT WE WILL DO'),
-                    const SizedBox(height: 12),
-                    Text('Our Pillars', style: _headlineLarge()),
-                  ],
-                ),
-              ),
+              Expanded(child: Text('Our Pillars', style: _headlineLarge())),
               TextButton(
                 onPressed: () {},
                 style: TextButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  minimumSize: const Size(0, 32),
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 6,
+                  ),
                 ),
                 child: Row(
                   children: [
@@ -1369,13 +1971,13 @@ class _MobileHomePageState extends State<MobileHomePage>
                       ),
                     ),
                     const SizedBox(width: 4),
-                    const Icon(Iconsax.arrow_right_3, color: prpRed, size: 13),
+                    const Icon(Iconsax.arrow_right_3, color: prpRed, size: 12),
                   ],
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 28),
           if (_isLoadingProjects)
             _buildShimmerEffect()
           else if (_projects.isEmpty)
@@ -1384,28 +1986,26 @@ class _MobileHomePageState extends State<MobileHomePage>
               message: 'No priorities available',
             )
           else
-            SizedBox(
-              height: 260,
-              child: ListView.separated(
-                scrollDirection: Axis.horizontal,
-                itemCount: _projects.length,
-                separatorBuilder: (_, __) => const SizedBox(width: 12),
-                itemBuilder: (context, index) =>
-                    _buildProjectCard(_projects[index], index + 1),
-              ),
-            ),
+            ..._projects.take(5).toList().asMap().entries.map((entry) {
+              final index = entry.key;
+              final project = entry.value;
+              return Padding(
+                padding: EdgeInsets.only(
+                  bottom: index == min(5, _projects.length) - 1 ? 0 : 14,
+                ),
+                child: _buildProjectCard(project, index + 1),
+              );
+            }),
         ],
       ),
     );
   }
 
   Widget _buildProjectCard(Map<String, dynamic> project, int number) {
-    final accent = project['color'] as Color;
     return Container(
-      width: 240,
       decoration: BoxDecoration(
         color: _darkMode ? prpCharcoal : Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(18),
         border: Border.all(
           color: _darkMode ? Colors.white10 : Colors.black12,
           width: 1,
@@ -1413,159 +2013,159 @@ class _MobileHomePageState extends State<MobileHomePage>
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.04),
-            blurRadius: 16,
-            offset: const Offset(0, 8),
+            blurRadius: 14,
+            offset: const Offset(0, 6),
           ),
         ],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(20),
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: () {},
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  height: 90,
-                  color: accent.withOpacity(0.06),
-                  padding: const EdgeInsets.all(16),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        width: 42,
-                        height: 42,
-                        decoration: BoxDecoration(
-                          color: accent.withOpacity(0.15),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Icon(
-                          project['icon'] ?? Iconsax.flag,
-                          size: 22,
-                          color: accent,
+        borderRadius: BorderRadius.circular(18),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              height: 90,
+              decoration: BoxDecoration(
+                color: project['color'].withOpacity(0.06),
+              ),
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      color: project['color'].withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(11),
+                    ),
+                    child: Icon(
+                      project['icon'] ?? Iconsax.flag,
+                      size: 22,
+                      color: project['color'],
+                    ),
+                  ),
+                  const Spacer(),
+                  Text(
+                    '0$number',
+                    style: GoogleFonts.poppins(
+                      fontSize: 26,
+                      fontWeight: FontWeight.w800,
+                      color: project['color'].withOpacity(0.25),
+                      height: 1,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(18),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if ((project['tag'] as String).isNotEmpty)
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 7,
+                        vertical: 3,
+                      ),
+                      decoration: BoxDecoration(
+                        color: project['color'],
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        project['tag'],
+                        style: GoogleFonts.poppins(
+                          fontSize: 8.5,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.white,
+                          letterSpacing: 1,
                         ),
                       ),
-                      const Spacer(),
+                    ),
+                  const SizedBox(height: 10),
+                  Text(
+                    project['title'],
+                    style: GoogleFonts.poppins(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                      color: _darkMode ? Colors.white : prpBlack,
+                      letterSpacing: -0.3,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    project['description'],
+                    style: GoogleFonts.inter(
+                      fontSize: 12,
+                      color: _darkMode ? Colors.white60 : prpGrey,
+                      height: 1.55,
+                    ),
+                    maxLines: 4,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
                       Text(
-                        '0$number',
+                        'Learn more',
                         style: GoogleFonts.poppins(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w800,
-                          color: accent.withOpacity(0.25),
-                          height: 1,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: project['color'],
                         ),
+                      ),
+                      const SizedBox(width: 4),
+                      Icon(
+                        Iconsax.arrow_right_3,
+                        size: 12,
+                        color: project['color'],
                       ),
                     ],
                   ),
-                ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        if ((project['tag'] as String).isNotEmpty)
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 7,
-                              vertical: 3,
-                            ),
-                            decoration: BoxDecoration(
-                              color: accent,
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: Text(
-                              project['tag'],
-                              style: GoogleFonts.poppins(
-                                fontSize: 8.5,
-                                fontWeight: FontWeight.w800,
-                                color: Colors.white,
-                                letterSpacing: 1.1,
-                              ),
-                            ),
-                          ),
-                        const SizedBox(height: 10),
-                        Text(
-                          project['title'],
-                          style: GoogleFonts.poppins(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w700,
-                            color: _darkMode ? Colors.white : prpBlack,
-                            letterSpacing: -0.3,
-                          ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        const SizedBox(height: 8),
-                        Expanded(
-                          child: Text(
-                            project['description'],
-                            style: _bodyMedium().copyWith(fontSize: 11.5),
-                            maxLines: 3,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            Text(
-                              'Learn more',
-                              style: GoogleFonts.poppins(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w600,
-                                color: accent,
-                              ),
-                            ),
-                            const SizedBox(width: 4),
-                            Icon(
-                              Iconsax.arrow_right_3,
-                              size: 12,
-                              color: accent,
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );
   }
 
   // ---------------------------------------------------------------------------
-  // TESTIMONIALS (single-card swipe)
+  // TESTIMONIALS
   // ---------------------------------------------------------------------------
   Widget _buildTestimonialsSection() {
     return Container(
       color: _darkMode ? prpBlack : Colors.white,
-      padding: EdgeInsets.symmetric(vertical: 56, horizontal: _screenPadding),
+      padding: const EdgeInsets.symmetric(
+        vertical: 56,
+        horizontal: _screenPadding,
+      ),
       child: Column(
         children: [
           _sectionLabel('TESTIMONIALS'),
-          const SizedBox(height: 14),
+          const SizedBox(height: 18),
           Text('Impact Stories', style: _headlineLarge()),
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
           Text(
             'Hear from those we\'ve served in Bauchi North',
             style: _bodyLarge(),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 22),
+          const SizedBox(height: 32),
           CarouselSlider(
             options: CarouselOptions(
-              height: 300,
+              height: 320,
               autoPlay: true,
               enlargeCenterPage: true,
-              viewportFraction: 0.88,
+              aspectRatio: 1.6,
               autoPlayInterval: const Duration(seconds: 5),
+              viewportFraction: 0.88,
+              enableInfiniteScroll: true,
               autoPlayAnimationDuration: const Duration(milliseconds: 800),
-              autoPlayCurve: Curves.fastOutSlowIn,
             ),
             items: _testimonials.map((t) => _buildTestimonialCard(t)).toList(),
           ),
@@ -1576,10 +2176,10 @@ class _MobileHomePageState extends State<MobileHomePage>
 
   Widget _buildTestimonialCard(Map<String, dynamic> testimonial) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 4),
+      margin: const EdgeInsets.symmetric(horizontal: 6),
       decoration: BoxDecoration(
         color: _darkMode ? prpCharcoal : prpOffWhite,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(18),
         border: Border.all(
           color: _darkMode ? Colors.white10 : Colors.black12,
           width: 1,
@@ -1625,12 +2225,12 @@ class _MobileHomePageState extends State<MobileHomePage>
               child: Text(
                 testimonial['quote'],
                 style: GoogleFonts.inter(
-                  fontSize: 12.5,
+                  fontSize: 13,
                   color: _darkMode ? Colors.white70 : prpDarkGrey,
-                  height: 1.65,
+                  height: 1.6,
                   fontStyle: FontStyle.italic,
                 ),
-                maxLines: 6,
+                maxLines: 7,
                 overflow: TextOverflow.ellipsis,
               ),
             ),
@@ -1650,7 +2250,7 @@ class _MobileHomePageState extends State<MobileHomePage>
                       Text(
                         testimonial['name'],
                         style: GoogleFonts.poppins(
-                          fontSize: 12.5,
+                          fontSize: 13,
                           fontWeight: FontWeight.w600,
                           color: _darkMode ? Colors.white : prpBlack,
                         ),
@@ -1683,12 +2283,15 @@ class _MobileHomePageState extends State<MobileHomePage>
   Widget _buildNewsletterSection() {
     return Container(
       color: _darkMode ? prpBlack : prpOffWhite,
-      padding: EdgeInsets.symmetric(vertical: 56, horizontal: _screenPadding),
+      padding: const EdgeInsets.symmetric(
+        vertical: 56,
+        horizontal: _screenPadding,
+      ),
       child: Container(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(26),
         decoration: BoxDecoration(
           color: _darkMode ? prpCharcoal : Colors.white,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(22),
           border: Border.all(
             color: _darkMode ? Colors.white10 : Colors.black12,
           ),
@@ -1707,20 +2310,20 @@ class _MobileHomePageState extends State<MobileHomePage>
               style: _headlineSmall(),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 8),
             Text(
               'Subscribe for campaign updates, rallies and impact stories from Bauchi North.',
               style: _bodyMedium(),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 18),
+            const SizedBox(height: 22),
             TextField(
-              style: GoogleFonts.inter(fontSize: 13.5),
+              style: GoogleFonts.inter(fontSize: 13),
               decoration: InputDecoration(
                 hintText: 'Enter your email address',
                 hintStyle: GoogleFonts.inter(
                   color: _darkMode ? Colors.white38 : prpGrey,
-                  fontSize: 13.5,
+                  fontSize: 13,
                 ),
                 filled: true,
                 fillColor: _darkMode
@@ -1752,7 +2355,10 @@ class _MobileHomePageState extends State<MobileHomePage>
   // ---------------------------------------------------------------------------
   Widget _buildCtaSection() {
     return Container(
-      padding: EdgeInsets.symmetric(vertical: 56, horizontal: _screenPadding),
+      padding: const EdgeInsets.symmetric(
+        vertical: 56,
+        horizontal: _screenPadding,
+      ),
       decoration: const BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
@@ -1765,22 +2371,24 @@ class _MobileHomePageState extends State<MobileHomePage>
         ),
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             'Join Us in Serving\nHumanity',
-            style: _headlineLarge().copyWith(color: Colors.white, fontSize: 26),
-            textAlign: TextAlign.center,
+            style: _headlineMedium().copyWith(
+              color: Colors.white,
+              fontSize: 26,
+            ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 14),
           Text(
-            'Partner with the Tilmeez Project 2027 for Shehu to protect dignity and restore hope '
+            'Partner with the Tilmeez Project For Shehu 2027 to protect dignity and restore hope '
             'for vulnerable communities across Bauchi North.',
             style: GoogleFonts.inter(
-              fontSize: 13.5,
+              fontSize: 13,
               color: Colors.white.withOpacity(0.9),
-              height: 1.6,
+              height: 1.65,
             ),
-            textAlign: TextAlign.center,
           ),
           const SizedBox(height: 22),
           _primaryButton('Get Involved', prpGold, () {}),
@@ -1798,27 +2406,26 @@ class _MobileHomePageState extends State<MobileHomePage>
   }
 
   // ---------------------------------------------------------------------------
-  // SHIMMER / EMPTY
+  // SHIMMER / EMPTY / SCROLL
   // ---------------------------------------------------------------------------
   Widget _buildShimmerEffect() {
-    return SizedBox(
-      height: 260,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        itemCount: 3,
-        separatorBuilder: (_, __) => const SizedBox(width: 12),
-        itemBuilder: (context, index) => Shimmer.fromColors(
-          baseColor: _darkMode ? Colors.grey[800]! : Colors.grey[200]!,
-          highlightColor: _darkMode ? Colors.grey[700]! : Colors.grey[100]!,
-          child: Container(
-            width: 240,
-            decoration: BoxDecoration(
-              color: _darkMode ? prpCharcoal : Colors.white,
-              borderRadius: BorderRadius.circular(20),
+    return Column(
+      children: List.generate(4, (index) {
+        return Padding(
+          padding: EdgeInsets.only(bottom: index == 3 ? 0 : 14),
+          child: Shimmer.fromColors(
+            baseColor: _darkMode ? Colors.grey[800]! : Colors.grey[200]!,
+            highlightColor: _darkMode ? Colors.grey[700]! : Colors.grey[100]!,
+            child: Container(
+              height: 220,
+              decoration: BoxDecoration(
+                color: _darkMode ? prpCharcoal : Colors.white,
+                borderRadius: BorderRadius.circular(18),
+              ),
             ),
           ),
-        ),
-      ),
+        );
+      }),
     );
   }
 
@@ -1860,18 +2467,16 @@ class _MobileHomePageState extends State<MobileHomePage>
   Widget build(BuildContext context) {
     _darkMode = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: _darkMode ? prpBlack : prpOffWhite,
       body: CustomScrollView(
         controller: _scrollController,
         physics: const BouncingScrollPhysics(),
         slivers: [
           SliverToBoxAdapter(child: _buildHeroSection()),
           SliverToBoxAdapter(child: _buildAboutSection()),
+          SliverToBoxAdapter(child: _buildLgaTableSection()),
           SliverToBoxAdapter(child: _buildCoreValuesSection()),
           SliverToBoxAdapter(child: _buildFocusSection()),
           SliverToBoxAdapter(child: _buildImpactSection()),
-          SliverToBoxAdapter(child: _buildLgaTableSection()),
-          SliverToBoxAdapter(child: _buildProjectsSection()),
           SliverToBoxAdapter(child: _buildTestimonialsSection()),
           SliverToBoxAdapter(child: _buildNewsletterSection()),
           SliverToBoxAdapter(child: _buildCtaSection()),
@@ -1884,9 +2489,9 @@ class _MobileHomePageState extends State<MobileHomePage>
                 borderRadius: BorderRadius.circular(14),
                 boxShadow: [
                   BoxShadow(
-                    color: prpRed.withOpacity(0.32),
-                    blurRadius: 14,
-                    offset: const Offset(0, 5),
+                    color: prpRed.withOpacity(0.35),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
                   ),
                 ],
               ),

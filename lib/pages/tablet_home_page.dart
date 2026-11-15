@@ -40,7 +40,7 @@ class _TabletHomePageState extends State<TabletHomePage>
   );
 
   // ---------------------------------------------------------------------------
-  // PRP CAMPAIGN PALETTE (identical to DesktopHomePage)
+  // PRP CAMPAIGN PALETTE
   // ---------------------------------------------------------------------------
   static const Color prpRed = Color(0xFFC8102E);
   static const Color prpDarkRed = Color(0xFF9E0B22);
@@ -69,7 +69,7 @@ class _TabletHomePageState extends State<TabletHomePage>
   late Animation<double> _fadeAnimation;
 
   // ---------------------------------------------------------------------------
-  // CAMPAIGN DATA (mirrors DesktopHomePage)
+  // CAMPAIGN DATA
   // ---------------------------------------------------------------------------
   final List<Map<String, dynamic>> _voterData = [
     {'lga': 'Katagum', 'voters': 188254, 'units': 384, 'wards': 12},
@@ -360,7 +360,7 @@ class _TabletHomePageState extends State<TabletHomePage>
   }
 
   // ---------------------------------------------------------------------------
-  // TYPOGRAPHY (tablet-tuned sizes)
+  // TYPOGRAPHY
   // ---------------------------------------------------------------------------
   TextStyle _displayLarge() => GoogleFonts.poppins(
     fontSize: 52,
@@ -541,7 +541,6 @@ class _TabletHomePageState extends State<TabletHomePage>
               ),
             ),
           ),
-          // Tablet: vertical stack (text on top, stats card below)
           Center(
             child: Container(
               constraints: const BoxConstraints(maxWidth: _maxContentWidth),
@@ -585,7 +584,7 @@ class _TabletHomePageState extends State<TabletHomePage>
                   ),
                   const SizedBox(height: 28),
                   Text(
-                    'Tilmeez Project\n2027 for Shehu',
+                    'Tilmeez Project\nFor Shehu 2027',
                     style: _displayLarge(),
                   ),
                   const SizedBox(height: 22),
@@ -624,7 +623,6 @@ class _TabletHomePageState extends State<TabletHomePage>
                     ],
                   ),
                   const SizedBox(height: 40),
-                  // Tablet: stat card full-width, horizontal
                   Container(
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
@@ -673,7 +671,6 @@ class _TabletHomePageState extends State<TabletHomePage>
                           ],
                         ),
                         const SizedBox(height: 20),
-                        // Tablet uses 2-column grid for hero stats
                         Row(
                           children: [
                             Expanded(
@@ -761,112 +758,236 @@ class _TabletHomePageState extends State<TabletHomePage>
       child: Center(
         child: SizedBox(
           width: _maxContentWidth,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // Tablet: image on top, text below
-              Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  Container(
-                    height: 400,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(24),
-                      image: const DecorationImage(
-                        image: AssetImage('assets/images/about_shehu.jpg'),
-                        fit: BoxFit.cover,
+              Expanded(
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    Container(
+                      height: 460,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(24),
+                        image: const DecorationImage(
+                          image: AssetImage('assets/images/about_shehu.jpg'),
+                          fit: BoxFit.cover,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: prpRed.withOpacity(0.22),
+                            blurRadius: 32,
+                            offset: const Offset(0, 18),
+                          ),
+                        ],
                       ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: prpRed.withOpacity(0.22),
-                          blurRadius: 32,
-                          offset: const Offset(0, 18),
+                    ),
+                    Positioned(
+                      bottom: -24,
+                      right: -20,
+                      child: Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: prpRed,
+                          borderRadius: BorderRadius.circular(18),
+                          boxShadow: [
+                            BoxShadow(
+                              color: prpRed.withOpacity(0.45),
+                              blurRadius: 24,
+                              offset: const Offset(0, 12),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '2027',
+                              style: GoogleFonts.poppins(
+                                fontSize: 34,
+                                fontWeight: FontWeight.w800,
+                                color: prpGold,
+                                height: 1,
+                              ),
+                            ),
+                            const SizedBox(height: 3),
+                            Text(
+                              'ELECTION ROADMAP',
+                              style: GoogleFonts.poppins(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white,
+                                letterSpacing: 1.4,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      bottom: -24,
+                      left: -20,
+                      child: _buildHonTilmeezCard(),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 48),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _sectionLabel('THE CANDIDATE'),
+                    const SizedBox(height: 20),
+                    Text('Shehu for\nBauchi North', style: _headlineLarge()),
+                    const SizedBox(height: 18),
+                    Text(
+                      'Under the Peoples Redemption Party (PRP), Shehu is running to represent '
+                      'Bauchi North Senatorial District — comprising Katagum, Gamawa, Zaki, '
+                      'Itas/Gadau, Shira, Giade and Jama\'are. The Tilmeez Project For Shehu 2027 '
+                      'is a peoples-first agenda built on unwavering compassion, protecting dignity '
+                      'and restoring hope for the poor, vulnerable and marginalized.',
+                      style: _bodyLarge(),
+                    ),
+                    const SizedBox(height: 28),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildValueTile(
+                            Iconsax.eye,
+                            'Vision',
+                            'Inclusive development and opportunity for every community in Bauchi North.',
+                            prpRed,
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: _buildValueTile(
+                            Iconsax.flag,
+                            'Mission',
+                            'Uplift vulnerable communities through sustainable, dignity-restoring programmes.',
+                            prpGold,
+                          ),
                         ),
                       ],
                     ),
-                  ),
-                  Positioned(
-                    bottom: -24,
-                    right: 24,
-                    child: Container(
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        color: prpRed,
-                        borderRadius: BorderRadius.circular(18),
-                        boxShadow: [
-                          BoxShadow(
-                            color: prpRed.withOpacity(0.45),
-                            blurRadius: 24,
-                            offset: const Offset(0, 12),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            '2027',
-                            style: GoogleFonts.poppins(
-                              fontSize: 34,
-                              fontWeight: FontWeight.w800,
-                              color: prpGold,
-                              height: 1,
-                            ),
-                          ),
-                          const SizedBox(height: 3),
-                          Text(
-                            'ELECTION ROADMAP',
-                            style: GoogleFonts.poppins(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w700,
-                              color: Colors.white,
-                              letterSpacing: 1.4,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 56),
-              _sectionLabel('THE CANDIDATE'),
-              const SizedBox(height: 20),
-              Text('Shehu for\nBauchi North', style: _headlineLarge()),
-              const SizedBox(height: 18),
-              Text(
-                'Under the Peoples Redemption Party (PRP), Shehu is running to represent '
-                'Bauchi North Senatorial District — comprising Katagum, Gamawa, Zaki, '
-                'Itas/Gadau, Shira, Giade and Jama\'are. The Tilmeez Project 2027 is a '
-                'peoples-first agenda built on unwavering compassion, protecting dignity '
-                'and restoring hope for the poor, vulnerable and marginalized.',
-                style: _bodyLarge(),
-              ),
-              const SizedBox(height: 28),
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildValueTile(
-                      Iconsax.eye,
-                      'Vision',
-                      'Inclusive development and opportunity for every community in Bauchi North.',
-                      prpRed,
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: _buildValueTile(
-                      Iconsax.flag,
-                      'Mission',
-                      'Uplift vulnerable communities through sustainable, dignity-restoring programmes.',
-                      prpGold,
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildHonTilmeezCard() {
+    return Container(
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: _darkMode ? prpCharcoal : Colors.white,
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: prpGold.withOpacity(0.55), width: 2),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.28),
+            blurRadius: 30,
+            offset: const Offset(0, 16),
+          ),
+          BoxShadow(
+            color: prpGold.withOpacity(0.18),
+            blurRadius: 24,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 78,
+            height: 78,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(color: prpGold, width: 2.5),
+              image: const DecorationImage(
+                image: AssetImage('assets/images/about_tilmeez.jpg'),
+                fit: BoxFit.cover,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: prpGold.withOpacity(0.35),
+                  blurRadius: 14,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 14),
+          Padding(
+            padding: const EdgeInsets.only(right: 12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: prpRed,
+                        borderRadius: BorderRadius.circular(3),
+                      ),
+                      child: Text(
+                        'PRP',
+                        style: GoogleFonts.poppins(
+                          fontSize: 8,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.white,
+                          letterSpacing: 1,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      'TILMEEZ FOR SHEHU 2027',
+                      style: GoogleFonts.poppins(
+                        fontSize: 8.5,
+                        fontWeight: FontWeight.w700,
+                        color: prpGold,
+                        letterSpacing: 0.8,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  'Hon Tilmeez',
+                  style: GoogleFonts.poppins(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w800,
+                    color: _darkMode ? Colors.white : prpBlack,
+                    letterSpacing: -0.3,
+                    height: 1.1,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  'For Bauchi North',
+                  style: GoogleFonts.inter(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w500,
+                    color: _darkMode ? Colors.white60 : prpGrey,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -1025,7 +1146,7 @@ class _TabletHomePageState extends State<TabletHomePage>
   }
 
   // ---------------------------------------------------------------------------
-  // FOCUS AREAS (tablet: 2-col + 3-col hybrid via Wrap)
+  // FOCUS AREAS (tablet: 2-col grid)
   // ---------------------------------------------------------------------------
   Widget _buildFocusSection() {
     return Container(
@@ -1053,7 +1174,6 @@ class _TabletHomePageState extends State<TabletHomePage>
                 ),
               ),
               const SizedBox(height: 44),
-              // Tablet: 2-col grid (last item centered via Wrap-like approach)
               GridView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
@@ -1327,7 +1447,6 @@ class _TabletHomePageState extends State<TabletHomePage>
                 ],
               ),
               const SizedBox(height: 36),
-              // Tablet: bars on top, table below
               Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
@@ -1383,7 +1502,7 @@ class _TabletHomePageState extends State<TabletHomePage>
                           _tableHeader('Voters', flex: 2),
                           _tableHeader('Units', flex: 2),
                           _tableHeader('Wards', flex: 1),
-                          const SizedBox(width: 16),
+                          const SizedBox(width: 108),
                         ],
                       ),
                     ),
@@ -1421,7 +1540,7 @@ class _TabletHomePageState extends State<TabletHomePage>
                             bold: true,
                             flex: 1,
                           ),
-                          const SizedBox(width: 16),
+                          const SizedBox(width: 108),
                         ],
                       ),
                     ),
@@ -1493,6 +1612,9 @@ class _TabletHomePageState extends State<TabletHomePage>
     );
   }
 
+  // ---------------------------------------------------------------------------
+  // VOTER BAR (with visible "View Wards" button)
+  // ---------------------------------------------------------------------------
   Widget _buildVoterBar(Map<String, dynamic> row, int maxVoters) {
     final percent = (row['voters'] as int) / maxVoters;
 
@@ -1508,15 +1630,17 @@ class _TabletHomePageState extends State<TabletHomePage>
     final lgaName = row['lga'] as String;
     final lgaCode = nameToCode[lgaName] ?? lgaName;
 
+    void openLga() {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => LgaDetailScreen(lgaId: lgaCode, lgaName: lgaName),
+        ),
+      );
+    }
+
     return InkWell(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => LgaDetailScreen(lgaId: lgaCode, lgaName: lgaName),
-          ),
-        );
-      },
+      onTap: openLga,
       hoverColor: prpRed.withOpacity(0.04),
       borderRadius: BorderRadius.circular(6),
       child: Padding(
@@ -1525,16 +1649,18 @@ class _TabletHomePageState extends State<TabletHomePage>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  row['lga'],
-                  style: GoogleFonts.inter(
-                    fontSize: 12.5,
-                    fontWeight: FontWeight.w600,
-                    color: _darkMode ? Colors.white : prpDarkGrey,
+                Expanded(
+                  child: Text(
+                    row['lga'],
+                    style: GoogleFonts.inter(
+                      fontSize: 12.5,
+                      fontWeight: FontWeight.w600,
+                      color: _darkMode ? Colors.white : prpDarkGrey,
+                    ),
                   ),
                 ),
+                const SizedBox(width: 8),
                 Text(
                   (row['voters'] as int).toString().replaceAllMapped(
                     RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
@@ -1546,6 +1672,8 @@ class _TabletHomePageState extends State<TabletHomePage>
                     color: prpRed,
                   ),
                 ),
+                const SizedBox(width: 8),
+                _buildViewWardsButton(openLga, compact: true),
               ],
             ),
             const SizedBox(height: 5),
@@ -1597,6 +1725,9 @@ class _TabletHomePageState extends State<TabletHomePage>
     );
   }
 
+  // ---------------------------------------------------------------------------
+  // VOTER ROW (with visible "View Wards" button)
+  // ---------------------------------------------------------------------------
   Widget _buildVoterRow(Map<String, dynamic> row) {
     final lgaName = row['lga'] as String;
 
@@ -1611,17 +1742,19 @@ class _TabletHomePageState extends State<TabletHomePage>
     };
     final lgaCode = nameToCode[lgaName] ?? lgaName;
 
+    void openLga() {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => LgaDetailScreen(lgaId: lgaCode, lgaName: lgaName),
+        ),
+      );
+    }
+
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => LgaDetailScreen(lgaId: lgaCode, lgaName: lgaName),
-            ),
-          );
-        },
+        onTap: openLga,
         hoverColor: prpRed.withOpacity(0.05),
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
@@ -1645,7 +1778,54 @@ class _TabletHomePageState extends State<TabletHomePage>
               ),
               _tableCell((row['units'] as int).toString(), flex: 2),
               _tableCell((row['wards'] as int).toString(), flex: 1),
-              const Icon(Iconsax.arrow_right_3, size: 15, color: prpRed),
+              const SizedBox(width: 10),
+              _buildViewWardsButton(openLga),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // VISIBLE "VIEW WARDS" BUTTON
+  // ---------------------------------------------------------------------------
+  Widget _buildViewWardsButton(VoidCallback onTap, {bool compact = false}) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(8),
+        child: Container(
+          padding: EdgeInsets.symmetric(
+            horizontal: compact ? 10 : 13,
+            vertical: compact ? 6 : 8,
+          ),
+          decoration: BoxDecoration(
+            color: prpRed.withOpacity(0.10),
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: prpRed.withOpacity(0.35), width: 1),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Iconsax.element_3, size: compact ? 12 : 14, color: prpRed),
+              SizedBox(width: compact ? 4 : 5),
+              Text(
+                'View Wards',
+                style: GoogleFonts.poppins(
+                  fontSize: compact ? 10 : 11,
+                  fontWeight: FontWeight.w700,
+                  color: prpRed,
+                  letterSpacing: 0.3,
+                ),
+              ),
+              SizedBox(width: compact ? 4 : 5),
+              Icon(
+                Iconsax.arrow_right_3,
+                size: compact ? 12 : 14,
+                color: prpRed,
+              ),
             ],
           ),
         ),
@@ -1680,7 +1860,7 @@ class _TabletHomePageState extends State<TabletHomePage>
   }
 
   // ---------------------------------------------------------------------------
-  // PROJECTS / PILLARS (tablet: 2-col grid)
+  // PROJECTS / PILLARS (tablet: 2-col grid) — kept but not in main flow
   // ---------------------------------------------------------------------------
   Widget _buildProjectsSection() {
     return Container(
@@ -1912,7 +2092,7 @@ class _TabletHomePageState extends State<TabletHomePage>
   }
 
   // ---------------------------------------------------------------------------
-  // TESTIMONIALS (tablet: viewport 0.65)
+  // TESTIMONIALS
   // ---------------------------------------------------------------------------
   Widget _buildTestimonialsSection() {
     return Container(
@@ -2137,7 +2317,7 @@ class _TabletHomePageState extends State<TabletHomePage>
   }
 
   // ---------------------------------------------------------------------------
-  // CTA (tablet: stacked)
+  // CTA
   // ---------------------------------------------------------------------------
   Widget _buildCtaSection() {
     return Container(
@@ -2170,7 +2350,7 @@ class _TabletHomePageState extends State<TabletHomePage>
               ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 640),
                 child: Text(
-                  'Partner with the Tilmeez Project 2027 for Shehu to protect dignity and restore hope '
+                  'Partner with the Tilmeez Project For Shehu 2027 to protect dignity and restore hope '
                   'for vulnerable communities across Bauchi North.',
                   style: GoogleFonts.inter(
                     fontSize: 15,
@@ -2259,7 +2439,7 @@ class _TabletHomePageState extends State<TabletHomePage>
   }
 
   // ---------------------------------------------------------------------------
-  // BUILD
+  // BUILD (section order matches DesktopHomePage)
   // ---------------------------------------------------------------------------
   @override
   Widget build(BuildContext context) {
@@ -2271,11 +2451,10 @@ class _TabletHomePageState extends State<TabletHomePage>
         slivers: [
           SliverToBoxAdapter(child: _buildHeroSection()),
           SliverToBoxAdapter(child: _buildAboutSection()),
+          SliverToBoxAdapter(child: _buildLgaTableSection()),
           SliverToBoxAdapter(child: _buildCoreValuesSection()),
           SliverToBoxAdapter(child: _buildFocusSection()),
           SliverToBoxAdapter(child: _buildImpactSection()),
-          SliverToBoxAdapter(child: _buildLgaTableSection()),
-          SliverToBoxAdapter(child: _buildProjectsSection()),
           SliverToBoxAdapter(child: _buildTestimonialsSection()),
           SliverToBoxAdapter(child: _buildNewsletterSection()),
           SliverToBoxAdapter(child: _buildCtaSection()),
@@ -2311,7 +2490,7 @@ class _TabletHomePageState extends State<TabletHomePage>
 }
 
 // -----------------------------------------------------------------------------
-// GRID PAINTER (kept for reuse if added back to hero)
+// GRID PAINTER
 // -----------------------------------------------------------------------------
 class GridPainter extends CustomPainter {
   @override

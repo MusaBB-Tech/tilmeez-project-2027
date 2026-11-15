@@ -431,7 +431,6 @@ class _DesktopHomePageState extends State<DesktopHomePage>
                           ],
                         ),
                         const SizedBox(height: 32),
-                        // ✅ UPDATED CAMPAIGN NAME
                         Text(
                           'Tilmeez Project\nFor Shehu 2027',
                           style: _displayLarge(context),
@@ -672,14 +671,10 @@ class _DesktopHomePageState extends State<DesktopHomePage>
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // -----------------------------------------------------------------
-              // LEFT — Shehu image with two overlapping badges
-              // -----------------------------------------------------------------
               Expanded(
                 child: Stack(
                   clipBehavior: Clip.none,
                   children: [
-                    // Main portrait
                     Container(
                       height: 620,
                       decoration: BoxDecoration(
@@ -697,8 +692,6 @@ class _DesktopHomePageState extends State<DesktopHomePage>
                         ],
                       ),
                     ),
-
-                    // Bottom-right — 2027 election roadmap badge
                     Positioned(
                       bottom: -30,
                       right: -30,
@@ -741,8 +734,6 @@ class _DesktopHomePageState extends State<DesktopHomePage>
                         ),
                       ),
                     ),
-
-                    // Bottom-left — Hon Tilmeez identity card
                     Positioned(
                       bottom: -28,
                       left: -28,
@@ -752,9 +743,6 @@ class _DesktopHomePageState extends State<DesktopHomePage>
                 ),
               ),
               const SizedBox(width: 90),
-              // -----------------------------------------------------------------
-              // RIGHT — Candidate copy
-              // -----------------------------------------------------------------
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -766,7 +754,6 @@ class _DesktopHomePageState extends State<DesktopHomePage>
                       style: _headlineLarge(context),
                     ),
                     const SizedBox(height: 24),
-                    // ✅ UPDATED CAMPAIGN NAME IN PROSE
                     Text(
                       'Under the Peoples Redemption Party (PRP), Shehu is running to represent '
                       'Bauchi North Senatorial District — comprising Katagum, Gamawa, Zaki, '
@@ -833,7 +820,6 @@ class _DesktopHomePageState extends State<DesktopHomePage>
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Small circular portrait
           Container(
             width: 78,
             height: 78,
@@ -860,7 +846,6 @@ class _DesktopHomePageState extends State<DesktopHomePage>
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                // PRP mini badge + role
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -884,7 +869,6 @@ class _DesktopHomePageState extends State<DesktopHomePage>
                       ),
                     ),
                     const SizedBox(width: 6),
-                    // ✅ UPDATED CAMPAIGN BADGE TEXT
                     Text(
                       'TILMEEZ FOR SHEHU 2027',
                       style: GoogleFonts.poppins(
@@ -1440,7 +1424,7 @@ class _DesktopHomePageState extends State<DesktopHomePage>
                                 _tableHeader('Voters', flex: 2),
                                 _tableHeader('Units', flex: 2),
                                 _tableHeader('Wards', flex: 1),
-                                const SizedBox(width: 16),
+                                const SizedBox(width: 118),
                               ],
                             ),
                           ),
@@ -1478,7 +1462,7 @@ class _DesktopHomePageState extends State<DesktopHomePage>
                                   bold: true,
                                   flex: 1,
                                 ),
-                                const SizedBox(width: 16),
+                                const SizedBox(width: 118),
                               ],
                             ),
                           ),
@@ -1553,6 +1537,9 @@ class _DesktopHomePageState extends State<DesktopHomePage>
     );
   }
 
+  // ---------------------------------------------------------------------------
+  // VOTER BAR (with visible "View Wards" button)
+  // ---------------------------------------------------------------------------
   Widget _buildVoterBar(Map<String, dynamic> row, int maxVoters) {
     final percent = (row['voters'] as int) / maxVoters;
 
@@ -1568,15 +1555,17 @@ class _DesktopHomePageState extends State<DesktopHomePage>
     final lgaName = row['lga'] as String;
     final lgaCode = nameToCode[lgaName] ?? lgaName;
 
+    void openLga() {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => LgaDetailScreen(lgaId: lgaCode, lgaName: lgaName),
+        ),
+      );
+    }
+
     return InkWell(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => LgaDetailScreen(lgaId: lgaCode, lgaName: lgaName),
-          ),
-        );
-      },
+      onTap: openLga,
       hoverColor: prpRed.withOpacity(0.04),
       borderRadius: BorderRadius.circular(6),
       child: Padding(
@@ -1585,16 +1574,18 @@ class _DesktopHomePageState extends State<DesktopHomePage>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  row['lga'],
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: _darkMode ? Colors.white : prpDarkGrey,
+                Expanded(
+                  child: Text(
+                    row['lga'],
+                    style: GoogleFonts.inter(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: _darkMode ? Colors.white : prpDarkGrey,
+                    ),
                   ),
                 ),
+                const SizedBox(width: 10),
                 Text(
                   (row['voters'] as int).toString().replaceAllMapped(
                     RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
@@ -1606,6 +1597,8 @@ class _DesktopHomePageState extends State<DesktopHomePage>
                     color: prpRed,
                   ),
                 ),
+                const SizedBox(width: 10),
+                _buildViewWardsButton(openLga, compact: true),
               ],
             ),
             const SizedBox(height: 6),
@@ -1657,6 +1650,9 @@ class _DesktopHomePageState extends State<DesktopHomePage>
     );
   }
 
+  // ---------------------------------------------------------------------------
+  // VOTER ROW (with visible "View Wards" button)
+  // ---------------------------------------------------------------------------
   Widget _buildVoterRow(Map<String, dynamic> row) {
     final lgaName = row['lga'] as String;
 
@@ -1671,17 +1667,19 @@ class _DesktopHomePageState extends State<DesktopHomePage>
     };
     final lgaCode = nameToCode[lgaName] ?? lgaName;
 
+    void openLga() {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => LgaDetailScreen(lgaId: lgaCode, lgaName: lgaName),
+        ),
+      );
+    }
+
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => LgaDetailScreen(lgaId: lgaCode, lgaName: lgaName),
-            ),
-          );
-        },
+        onTap: openLga,
         hoverColor: prpRed.withOpacity(0.05),
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
@@ -1705,7 +1703,54 @@ class _DesktopHomePageState extends State<DesktopHomePage>
               ),
               _tableCell((row['units'] as int).toString(), flex: 2),
               _tableCell((row['wards'] as int).toString(), flex: 1),
-              const Icon(Iconsax.arrow_right_3, size: 16, color: prpRed),
+              const SizedBox(width: 12),
+              _buildViewWardsButton(openLga),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // VISIBLE "VIEW WARDS" BUTTON
+  // ---------------------------------------------------------------------------
+  Widget _buildViewWardsButton(VoidCallback onTap, {bool compact = false}) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(8),
+        child: Container(
+          padding: EdgeInsets.symmetric(
+            horizontal: compact ? 10 : 14,
+            vertical: compact ? 6 : 8,
+          ),
+          decoration: BoxDecoration(
+            color: prpRed.withOpacity(0.10),
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: prpRed.withOpacity(0.35), width: 1),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Iconsax.element_3, size: compact ? 12 : 14, color: prpRed),
+              SizedBox(width: compact ? 4 : 6),
+              Text(
+                'View Wards',
+                style: GoogleFonts.poppins(
+                  fontSize: compact ? 10 : 11.5,
+                  fontWeight: FontWeight.w700,
+                  color: prpRed,
+                  letterSpacing: 0.3,
+                ),
+              ),
+              SizedBox(width: compact ? 4 : 6),
+              Icon(
+                Iconsax.arrow_right_3,
+                size: compact ? 12 : 14,
+                color: prpRed,
+              ),
             ],
           ),
         ),
@@ -1998,7 +2043,6 @@ class _DesktopHomePageState extends State<DesktopHomePage>
                     const SizedBox(height: 20),
                     ConstrainedBox(
                       constraints: const BoxConstraints(maxWidth: 600),
-                      // ✅ UPDATED CAMPAIGN NAME IN CTA
                       child: Text(
                         'Partner with the Tilmeez Project For Shehu 2027 to protect dignity and restore hope '
                         'for vulnerable communities across Bauchi North.',
