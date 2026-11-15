@@ -2,7 +2,6 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:tilmeez_project_2027/pages/admin_panel.dart';
-import 'package:tilmeez_project_2027/pages/leadership_management_screen.dart';
 import 'package:tilmeez_project_2027/pages/products_screen.dart';
 import 'package:tilmeez_project_2027/pages/priorities%20screen.dart';
 import 'package:tilmeez_project_2027/widgets/customToast.dart';
@@ -226,22 +225,6 @@ class _DesktopMainNavigationWrapperState
     _removeDropdown();
     _removeThemeDropdown();
     super.dispose();
-  }
-
-  // ---------------------------------------------------------------------------
-  // JOIN MOVEMENT → Leadership Management
-  // ---------------------------------------------------------------------------
-  void _openLeadershipManagement() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => LeadershipManagementScreen(
-          level: 'LGA',
-          lgaId: widget.lgaId ?? 'KTG',
-          lgaName: widget.lgaName ?? 'Katagum',
-        ),
-      ),
-    );
   }
 
   void _showSignInDialog() {
@@ -878,8 +861,7 @@ class _DesktopMainNavigationWrapperState
         child: InkWell(
           onTap: () {
             _removeDropdown();
-            // NEW: navigate to Leadership Management screen
-            _openLeadershipManagement();
+            // Navigation intentionally disabled for "Join Movement".
           },
           borderRadius: BorderRadius.circular(10),
           child: Container(

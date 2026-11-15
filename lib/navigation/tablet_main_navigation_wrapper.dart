@@ -862,7 +862,11 @@ class _TabletMainNavigationWrapperState
               Material(
                 color: Colors.transparent,
                 child: InkWell(
-                  onTap: widget.isAuthenticated ? _signOut : _showSignInDialog,
+                  onTap: () {
+                    // Navigation intentionally disabled for "Join Movement".
+                    // Uncomment the line below to restore the original behaviour:
+                    // widget.isAuthenticated ? _signOut() : _showSignInDialog();
+                  },
                   borderRadius: BorderRadius.circular(12),
                   child: Container(
                     padding: EdgeInsets.symmetric(

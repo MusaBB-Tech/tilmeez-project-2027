@@ -5,8 +5,6 @@ import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:tilmeez_project_2027/pages/admin_panel.dart';
 import 'package:tilmeez_project_2027/pages/priorities%20screen.dart';
-import 'package:tilmeez_project_2027/widgets/customToast.dart';
-import 'package:tilmeez_project_2027/widgets/membership_dialog.dart';
 
 import '../pages/about_us_page.dart';
 import '../pages/cart_screen.dart';
@@ -106,30 +104,6 @@ class _MobileMainNavigationWrapperState
     _animationController.dispose();
     _removeThemeDropdown();
     super.dispose();
-  }
-
-  // ---------------------------------------------------------------------------
-  // AUTH
-  // ---------------------------------------------------------------------------
-  void _showSignInDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => Dialog(
-        backgroundColor: Colors.transparent,
-        insetPadding: const EdgeInsets.all(16),
-        child: MembershipFormDialog(supabase: widget.supabase),
-      ),
-    );
-  }
-
-  Future<void> _signOut() async {
-    try {
-      await widget.supabase.auth.signOut();
-      setState(() => _currentIndex = 0);
-      CustomToast.success(context, 'Signed out successfully');
-    } catch (e) {
-      CustomToast.error(context, 'Sign-out failed');
-    }
   }
 
   // ---------------------------------------------------------------------------
@@ -882,7 +856,7 @@ class _MobileMainNavigationWrapperState
                     ),
 
                     // -------------------------------------------------------
-                    // Bottom — Auth + footer
+                    // Bottom — footer only (auth item removed)
                     // -------------------------------------------------------
                     Container(
                       padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
@@ -896,44 +870,15 @@ class _MobileMainNavigationWrapperState
                           ),
                         ),
                       ),
-                      child: Column(
-                        children: [
-                          _createNavigationItem(
-                            index: 8,
-                            icon: widget.isAuthenticated
-                                ? Iconsax.logout
-                                : Iconsax.user_add,
-                            text: widget.isAuthenticated
-                                ? 'Sign Out'
-                                : 'Join Movement',
-                            subtitle: widget.isAuthenticated
-                                ? 'End your session'
-                                : 'Register for the campaign',
-                            onTap: () {
-                              _onDrawerItemTapped(8);
-                              if (widget.isAuthenticated) {
-                                _signOut();
-                              } else {
-                                _showSignInDialog();
-                              }
-                              Navigator.of(context).pop();
-                            },
-                            dark: dark,
-                            isAuthItem: true,
-                            isSignedIn: widget.isAuthenticated,
-                          ),
-                          const SizedBox(height: 12),
-                          Text(
-                            'Tilmeez Project 2027 · Bauchi North © ${DateTime.now().year}',
-                            style: TextStyle(
-                              fontSize: 9.5,
-                              color: dark
-                                  ? Colors.white.withOpacity(0.35)
-                                  : Colors.black.withOpacity(0.35),
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ],
+                      child: Text(
+                        'Tilmeez Project 2027 · Bauchi North © ${DateTime.now().year}',
+                        style: TextStyle(
+                          fontSize: 9.5,
+                          color: dark
+                              ? Colors.white.withOpacity(0.35)
+                              : Colors.black.withOpacity(0.35),
+                        ),
+                        textAlign: TextAlign.center,
                       ),
                     ),
                   ],
@@ -1087,82 +1032,6 @@ class _MobileMainNavigationWrapperState
   }
 
   // ---------------------------------------------------------------------------
-  // AUTH BUTTON (App bar)
-  // ---------------------------------------------------------------------------
-  Widget _buildAuthButton(bool dark) {
-    if (widget.isAuthenticated) {
-      return GestureDetector(
-        onTap: _signOut,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            color: dark
-                ? Colors.white.withOpacity(0.08)
-                : Colors.black.withOpacity(0.04),
-            border: Border.all(
-              color: dark
-                  ? Colors.white.withOpacity(0.10)
-                  : Colors.black.withOpacity(0.06),
-            ),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                Iconsax.logout,
-                size: 15,
-                color: dark ? Colors.white70 : Colors.black54,
-              ),
-              const SizedBox(width: 6),
-              Text(
-                'Logout',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: dark ? Colors.white70 : Colors.black87,
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-    return GestureDetector(
-      onTap: _showSignInDialog,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          gradient: const LinearGradient(colors: [prpRed, prpDarkRed]),
-          boxShadow: [
-            BoxShadow(
-              color: prpRed.withOpacity(0.30),
-              blurRadius: 10,
-              spreadRadius: 1,
-            ),
-          ],
-        ),
-        child: const Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Iconsax.user_add, size: 15, color: Colors.white),
-            SizedBox(width: 6),
-            Text(
-              'Join Movement',
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                color: Colors.white,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // ---------------------------------------------------------------------------
   // BUILD
   // ---------------------------------------------------------------------------
   @override
@@ -1233,8 +1102,6 @@ class _MobileMainNavigationWrapperState
           actions: [
             _buildThemeSwitcher(dark),
             const SizedBox(width: 8),
-            _buildAuthButton(dark),
-            const SizedBox(width: 4),
             Builder(
               builder: (context) {
                 return IconButton(
