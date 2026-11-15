@@ -34,12 +34,13 @@ jobs:
         run: flutter pub get
 
       - name: Build web
-        run: flutter build web --release --base-href /tilmeez-project-2027/
+        run: flutter build web --release --base-href /
 
-      - name: Add .nojekyll and 404 fallback
+      - name: Add .nojekyll, CNAME and 404 fallback
         run: |
           touch build/web/.nojekyll
           cp build/web/index.html build/web/404.html
+          echo "www.tilmeezprojectforshehu2027.org" > build/web/CNAME
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
