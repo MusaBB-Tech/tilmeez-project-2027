@@ -14,7 +14,7 @@ dependencies:
   get: ^4.7.2
   intl: ^0.20.2
   supabase_flutter: ^2.9.0
-  font_awesome_flutter: ^10.8.0
+
   carousel_slider: ^5.1.1
   shimmer: ^3.0.0
   smooth_page_indicator: ^1.2.1
@@ -27,6 +27,7 @@ dependencies:
   fluttertoast: ^8.2.12
   flutter_staggered_animations: ^1.1.1
   google_fonts: ^8.0.2
+  font_awesome_flutter: ^11.0.0
 
 dev_dependencies:
   flutter_test:
