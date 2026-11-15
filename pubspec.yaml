@@ -33,13 +33,34 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0
-  flutter_launcher_icons: ^0.13.1
+  flutter_launcher_icons: ^0.14.4
+  flutter_native_splash: ^2.4.6
 
-flutter_icons:
+# ------------------------------------------------------------------
+# App icon generator (Android + iOS)
+# Run:  dart run flutter_launcher_icons
+# ------------------------------------------------------------------
+flutter_launcher_icons:
   android: true
   ios: true
-  image_path: "assets/images/mbb_logo.png"  # Your existing logo path
+  image_path: "assets/images/tilmeez_logo.png"
+  remove_alpha_ios: true                       # required for App Store
+  adaptive_icon_background: "#ffffff"
+  adaptive_icon_foreground: "assets/images/tilmeez_logo.png"
+  min_sdk_android: 21
 
+# ------------------------------------------------------------------
+# Splash / loading screen (optional)
+# Run:  dart run flutter_native_splash:create
+# ------------------------------------------------------------------
+flutter_native_splash:
+  color: "#ffffff"
+  image: assets/images/tilmeez_logo.png
+  color_dark: "#000000"
+  image_dark: assets/images/tilmeez_logo.png
+  web: true
+
+# ------------------------------------------------------------------
 flutter:
   uses-material-design: true
   assets:
