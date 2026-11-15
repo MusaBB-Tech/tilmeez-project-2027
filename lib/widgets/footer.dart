@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
-import 'package:url_launcher/url_launcher.dart';
-import '../utils/constants/colors.dart';
 
 class Footer extends StatelessWidget {
   const Footer({super.key});
@@ -598,28 +596,12 @@ class Footer extends StatelessWidget {
   // SOCIAL LINKS
   // ---------------------------------------------------------------------------
   Widget _buildSocialLinks(bool dark, Color red) {
-    final socialLinks = [
-      {
-        'icon': FontAwesomeIcons.facebookF,
-        'color': const Color(0xFF1877F2),
-        'url': '',
-      },
-      {'icon': FontAwesomeIcons.xTwitter, 'color': Colors.black, 'url': ''},
-      {
-        'icon': FontAwesomeIcons.instagram,
-        'color': const Color(0xFFE4405F),
-        'url': '',
-      },
-      {
-        'icon': FontAwesomeIcons.linkedinIn,
-        'color': const Color(0xFF0A66C2),
-        'url': '',
-      },
-      {
-        'icon': FontAwesomeIcons.whatsapp,
-        'color': const Color(0xFF25D366),
-        'url': '',
-      },
+    final socialLinks = <_SocialLink>[
+      const _SocialLink(FontAwesomeIcons.facebookF, Color(0xFF1877F2), ''),
+      const _SocialLink(FontAwesomeIcons.xTwitter, Colors.black, ''),
+      const _SocialLink(FontAwesomeIcons.instagram, Color(0xFFE4405F), ''),
+      const _SocialLink(FontAwesomeIcons.linkedinIn, Color(0xFF0A66C2), ''),
+      const _SocialLink(FontAwesomeIcons.whatsapp, Color(0xFF25D366), ''),
     ];
 
     return Row(
@@ -645,11 +627,7 @@ class Footer extends StatelessWidget {
                 ),
               ),
               child: Center(
-                child: FaIcon(
-                  social['icon'] as IconData,
-                  size: 18,
-                  color: social['color'] as Color,
-                ),
+                child: FaIcon(social.icon, size: 18, color: social.color),
               ),
             ),
           ),
@@ -679,4 +657,20 @@ class Footer extends StatelessWidget {
       ),
     );
   }
+}
+
+// ---------------------------------------------------------------------------
+// STRONGLY-TYPED SOCIAL LINK
+// ---------------------------------------------------------------------------
+/// Holds a Font Awesome icon, its brand color, and target URL.
+///
+/// Uses [FaIconData] which is the icon type exposed by
+/// `font_awesome_flutter` v11+. On earlier versions this is a subtype of
+/// [IconData], so the code compiles cleanly across versions.
+class _SocialLink {
+  final FaIconData icon;
+  final Color color;
+  final String url;
+
+  const _SocialLink(this.icon, this.color, this.url);
 }
